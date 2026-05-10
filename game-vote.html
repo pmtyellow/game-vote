@@ -102,26 +102,10 @@ input[type=text]::placeholder { color: var(--muted); }
 
 /* Results */
 .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 10px; }
-.result-card.winner { border-color: rgba(129,140,248,0.4); background: rgba(129,140,248,0.06); }
-.result-card.elim { opacity: 0.6; border-color: rgba(248,113,113,0.2); }
-.result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.result-gname { font-size: 0.95rem; font-weight: 700; }
-.result-pts { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; font-weight: 700; }
-.result-pts.winner { color: var(--accent); }
-.result-pts.elim { color: var(--danger); }
-.badge { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: inline-block; }
-.badge-win { background: rgba(129,140,248,0.2); color: var(--accent); border: 1px solid rgba(129,140,248,0.3); }
-.badge-elim { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
-.badge-warn { background: rgba(251,191,36,0.15); color: var(--warn); border: 1px solid rgba(251,191,36,0.2); }
-.bar-track { height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-.bar-fill.elim { background: var(--danger); }
-.voter-scores { display: flex; flex-wrap: wrap; gap: 6px; }
-.vs-chip { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
-
+  
 /* 룰렛 & 모달 (UI 갇힘 방지 및 디자인 개선) */
 .roulette-container { position: relative; width: 280px; height: 280px; margin: 1.5rem auto; }
-#rouletteCanvas { width: 100%; height: 100%; transition: transform 6s cubic-bezier(0.1, 0, 0.1, 1); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
+#rouletteCanvas { width: 100%; height: 100%; transition: transform 9s cubic-bezier(0.08, 0.72, 0.04, 1); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
 .roulette-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--danger); z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
 
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; backdrop-filter: blur(5px); }
@@ -238,14 +222,14 @@ input[type=text]::placeholder { color: var(--muted); }
     <div style="font-size:3.5rem; margin-bottom:10px;">🎉</div>
     <h2 id="modal-game-name" style="font-family:'Gmarket Sans'; font-size:2rem; color:#fff; margin-bottom:5px;">-</h2>
     <p id="modal-method-text" style="color:var(--accent3); font-weight:700; margin-bottom:25px;">룰렛으로 최종 선정되었습니다!</p>
-    <button class="btn btn-primary btn-full big" onclick="closeModal()">확인</button>
+        <button class="btn btn-primary btn-full big" onclick="closeModal()">확인</button>
   </div>
 </div>
 
 <div class="modal" id="agree-modal">
   <div class="modal-content no-select">
-    <h3 style="font-family:'Gmarket Sans'; color:#fff; margin-bottom:10px;">🎡 룰렛으로 다시 정할까요?</h3>
-    <p style="color:var(--muted2); font-size:0.85rem; margin-bottom:20px;">투표 결과 대신 룰렛으로 결정합니다.<br>참가자 전원이 동의해야 실행됩니다.</p>
+    <h3 id="agree-modal-title" style="font-family:'Gmarket Sans'; color:#fff; margin-bottom:10px;">🎡 룰렛으로 다시 정할까요?</h3>
+    <p id="agree-modal-desc" style="color:var(--muted2); font-size:0.85rem; margin-bottom:20px;">투표 결과 대신 룰렛으로 결정합니다.<br>참가자 전원이 동의해야 실행됩니다.</p>
     <div id="agree-status-text" style="font-weight:700; color:var(--accent); margin-bottom:20px; font-size:1.1rem;">동의 인원: 0명</div>
     <div style="display:flex; gap:10px;">
       <button class="btn btn-ghost" style="flex:1;" onclick="cancelAgreeModal()">✕ 취소</button>
@@ -272,6 +256,7 @@ let tmpVote = {};
 let currentStep = 1;
 let isSpinning = false;
 let activeSpinId = null;
+let activeProposalId = null;
 
 window.onload = () => {
   const params = new URLSearchParams(window.location.search);
@@ -357,7 +342,7 @@ function enterRoom(code) {
   if (roomListener) db.ref('rooms/' + roomCode).off('value', roomListener);
   roomListener = db.ref('rooms/' + code).on('value', snap => {
     if (!snap.exists()) { alert('방이 삭제되었습니다.'); leaveRoom(); return; }
-    roomData = snap.val();
+        roomData = snap.val();
     renderRoom();
     checkProcess();
   });
@@ -476,7 +461,6 @@ function renderVoteTab() {
   html += `<div style="margin-top:15px; text-align:center; font-size:0.85rem; color:var(--muted2);">${votedCount} / ${members.length}명 투표 완료</div></div>`;
   el.innerHTML = html;
 }
-
 function rateStar(game, score) {
   if ((roomData.votes || {})[myNick]) return;
   tmpVote[game] = score;
@@ -531,8 +515,17 @@ function getResultScores() {
   return scores;
 }
 
-function getRouletteItems(scores = getResultScores()) {
+function getTopWinners(scores = getResultScores()) {
+  const top = scores[0];
+  if (!top) return [];
+  const topHasOne = top.ones > 0;
+  return scores.filter(s => (s.ones > 0) === topHasOne && s.total === top.total);
+}
+
+function getRouletteItems(scores = getResultScores(), onlyNames = null) {
+  const nameSet = onlyNames ? new Set(onlyNames) : null;
   return scores
+    .filter(s => !nameSet || nameSet.has(s.name))
     .map(s => ({
       ...s,
       // 1점을 받은 후보는 완전 배제 대신 아주 작은 확률만 부여합니다.
@@ -544,7 +537,7 @@ function getRouletteItems(scores = getResultScores()) {
 function drawRouletteFromCurrentResults() {
   const canvas = document.getElementById('rouletteCanvas');
   if (!canvas) return;
-  initRouletteCanvas(getRouletteItems());
+  initRouletteCanvas(getRouletteItems(getResultScores(), roomData.rouletteSpin?.onlyNames || null));
 }
 
 function renderResultTab() {
@@ -566,9 +559,13 @@ function renderResultTab() {
   }
 
   const scores = getResultScores();
-  const rouletteItems = getRouletteItems(scores);
+  const topWinners = getTopWinners(scores);
+  const isTie = topWinners.length > 1;
+  const topWinnerNames = topWinners.map(s => s.name);
+  const topWinnerPayload = encodeURIComponent(JSON.stringify(topWinnerNames)).replace(/'/g, '%27');
+  const rouletteItems = getRouletteItems(scores, roomData.rouletteSpin?.onlyNames || null);
   const isRouletteMode = roomData.settings?.mode === 'roulette';
-  const shouldShowRoulette = isRouletteMode || isSpinning || hasRouletteResult;
+  const shouldShowRoulette = isRouletteMode || isSpinning || hasRouletteResult || !!roomData.rouletteSpin;
   const winner = scores[0];
   const second = scores[1];
   const third = scores[2];
@@ -584,17 +581,25 @@ function renderResultTab() {
   } else if (isRouletteMode) {
     html += `<div class="winner-box-1st" style="border-color:var(--accent3);">
       <span class="crown-icon">🎡</span>
-      <h2 style="color:var(--accent3);">룰렛 대기중</h2>
+            <h2 style="color:var(--accent3);">룰렛 대기중</h2>
       <p style="color:var(--muted2);">아래 룰렛을 돌려 최종 게임을 정합니다</p>
     </div>`;
   } else {
-    html += `<div class="winner-box-1st">
-      <span class="crown-icon">👑</span>
-      <h2>${winner.name}</h2>
-      <p>${winner.total}점 • 투표로 최종 선정!</p>
-    </div>`;
+    if (isTie) {
+      html += `<div class="winner-box-1st" style="border-color:var(--warn);">
+        <span class="crown-icon">👑</span>
+        <h2>공동 1등</h2>
+        <p>${winner.total}점 • ${topWinnerNames.join(' · ')}</p>
+      </div>`;
+    } else {
+      html += `<div class="winner-box-1st">
+        <span class="crown-icon">👑</span>
+        <h2>${winner.name}</h2>
+        <p>${winner.total}점 • 투표로 최종 선정!</p>
+      </div>`;
+    }
     
-    if (second || third) {
+    if (!isTie && (second || third)) {
       html += `<div class="sub-winners-row">`;
       if (second) {
         html += `<div class="winner-box-sub">
@@ -620,7 +625,7 @@ function renderResultTab() {
 
   scores.forEach((s, idx) => {
     let badge = '';
-    if (idx === 0 && !isRouletteMode && !hasRouletteResult) badge = '<span class="badge badge-win">🏆 최종 1위</span>';
+    if (!isRouletteMode && !hasRouletteResult && topWinnerNames.includes(s.name)) badge = `<span class="badge badge-win">${isTie ? '👑 공동 1위' : '🏆 최종 1위'}</span>`;
     else if (s.ones > 0) {
       if (s.total === maxActualScore) {
         badge = `<span class="badge badge-elim">⚠️ 최다 점수이나 1점 반대로 1위 불가</span>`;
@@ -630,7 +635,7 @@ function renderResultTab() {
     }
     const rouletteWeight = rouletteItems.find(item => item.name === s.name)?.weight || 0;
     
-    html += `<div class="result-card ${idx===0 && !isRouletteMode && !hasRouletteResult ? 'winner' : ''} ${s.ones > 0 ? 'elim' : ''}">
+    html += `<div class="result-card ${topWinnerNames.includes(s.name) && !isRouletteMode && !hasRouletteResult ? 'winner' : ''} ${s.ones > 0 ? 'elim' : ''}">
       <div class="result-top">
         <span class="result-gname">${idx+1}. ${s.name}</span>
         <div style="display:flex; align-items:center; gap:8px;">${badge}<span class="result-pts">${s.total}점</span></div>
@@ -649,7 +654,12 @@ function renderResultTab() {
     </div>
   </div>`;
 
-  if (hasRouletteResult) {
+  if (isTie && !hasRouletteResult && !isRouletteMode) {
+    html += `<div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn btn-primary btn-full big" style="flex:1;" onclick="openTieDecision('revote', '${topWinnerPayload}')">공동 1등끼리 재투표 (전원 동의)</button>
+      <button class="btn btn-accent2 btn-full big" style="flex:1;" onclick="openTieDecision('roulette', '${topWinnerPayload}')">공동 1등 룰렛 (전원 동의)</button>
+    </div>`;
+  } else if (hasRouletteResult) {
     html += `<button class="btn btn-accent2 btn-full big" onclick="openAgreeModal()">🔄 초기화 및 재시도 (전원 동의)</button>`;
   } else if (!isRouletteMode) {
     html += `<button class="btn btn-accent2 btn-full big" onclick="openAgreeModal()">🎡 결과가 아쉽다면? 룰렛 돌리기 (전원 동의)</button>`;
@@ -666,9 +676,16 @@ function getRouletteAgreements() {
   return roomData.rouletteAgreements || roomData.rouletteAgree || {};
 }
 
+function setAgreeModalText(title, desc) {
+  document.getElementById('agree-modal-title').textContent = title;
+  document.getElementById('agree-modal-desc').innerHTML = desc;
+}
+
 function checkProcess() {
   const members = Object.keys(roomData.members || {});
   const votes = Object.keys(roomData.votes || {});
+  const modal = document.getElementById('agree-modal');
+  const statusText = document.getElementById('agree-status-text');
   
   // 1. 모두 투표 시 자동으로 3단계(결과) 이동
   if (members.length > 0 && members.length === votes.length && currentStep === 2) {
@@ -681,12 +698,33 @@ function checkProcess() {
     requestAnimationFrame(() => startRouletteEngine(roomData.rouletteSpin));
   }
 
-  // 3. 룰렛 실시간 동의 체크
+  // 3. 공동 1등 처리 제안(재투표/룰렛) 전원 동의 체크
+  const proposal = roomData.tieDecisionProposal;
+  if (proposal?.id) {
+        const agrees = Object.keys(roomData.tieDecisionAgreements || {});
+    const gameText = (proposal.games || []).join(' · ');
+    const isRevote = proposal.type === 'revote';
+    setAgreeModalText(
+      isRevote ? '🗳️ 공동 1등끼리 재투표할까요?' : '🎡 공동 1등끼리 룰렛을 돌릴까요?',
+      `${gameText}<br>참가자 전원이 동의해야 ${isRevote ? '재투표를 시작합니다.' : '룰렛을 실행합니다.'}`
+    );
+    if (modal.style.display !== 'flex') modal.style.display = 'flex';
+    statusText.textContent = `현재 동의 인원: ${agrees.length} / ${members.length}명`;
+
+    if (agrees.length === members.length && members.length > 0 && activeProposalId !== proposal.id) {
+      activeProposalId = proposal.id;
+      modal.style.display = 'none';
+      if (isRevote) executeTieRevote(proposal);
+      else createRouletteSpin(proposal.games || []);
+    }
+    return;
+  }
+
+  // 4. 일반 룰렛 실시간 동의 체크
   const agrees = Object.keys(getRouletteAgreements());
-  const modal = document.getElementById('agree-modal');
-  const statusText = document.getElementById('agree-status-text');
 
   if (agrees.length > 0 && !roomData.rouletteSpin) {
+    setAgreeModalText('🎡 룰렛으로 다시 정할까요?', '투표 결과 대신 룰렛으로 결정합니다.<br>참가자 전원이 동의해야 실행됩니다.');
     if (modal.style.display !== 'flex') modal.style.display = 'flex';
     statusText.textContent = `현재 동의 인원: ${agrees.length} / ${members.length}명`;
     
@@ -704,34 +742,86 @@ function openAgreeModal() {
   const updates = {
     [`rooms/${roomCode}/rouletteAgreements/${myNick}`]: true,
     [`rooms/${roomCode}/rouletteAgree`]: null,
-    [`rooms/${roomCode}/rouletteResult`]: null
+    [`rooms/${roomCode}/rouletteResult`]: null,
+    [`rooms/${roomCode}/tieDecisionProposal`]: null,
+    [`rooms/${roomCode}/tieDecisionAgreements`]: null
   };
   db.ref().update(updates);
 }
 
+function openTieDecision(type, games) {
+  const selectedGames = Array.isArray(games) ? games : JSON.parse(decodeURIComponent(games));
+  const proposal = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    type,
+    games: selectedGames,
+    by: myNick,
+    createdAt: firebase.database.ServerValue.TIMESTAMP
+  };
+  db.ref().update({
+    [`rooms/${roomCode}/tieDecisionProposal`]: proposal,
+    [`rooms/${roomCode}/tieDecisionAgreements`]: { [myNick]: true },
+    [`rooms/${roomCode}/rouletteAgreements`]: null,
+    [`rooms/${roomCode}/rouletteAgree`]: null,
+    [`rooms/${roomCode}/rouletteResult`]: null
+  });
+}
+
 function sendAgree() {
-  db.ref(`rooms/${roomCode}/rouletteAgreements/${myNick}`).set(true);
+  if (roomData.tieDecisionProposal?.id) {
+    db.ref(`rooms/${roomCode}/tieDecisionAgreements/${myNick}`).set(true);
+  } else {
+    db.ref(`rooms/${roomCode}/rouletteAgreements/${myNick}`).set(true);
+  }
 }
 
 function cancelAgreeModal() {
   // 나를 포함하여 동의 데이터 모두 초기화 (취소)
   db.ref().update({
     [`rooms/${roomCode}/rouletteAgreements`]: null,
-    [`rooms/${roomCode}/rouletteAgree`]: null
+    [`rooms/${roomCode}/rouletteAgree`]: null,
+    [`rooms/${roomCode}/tieDecisionProposal`]: null,
+    [`rooms/${roomCode}/tieDecisionAgreements`]: null
   });
   document.getElementById('agree-modal').style.display = 'none';
 }
 
-function createRouletteSpin() {
+function executeTieRevote(proposal) {
+  db.ref().update({
+    [`rooms/${roomCode}/games`]: proposal.games || [],
+    [`rooms/${roomCode}/votes`]: null,
+    [`rooms/${roomCode}/settings/mode`]: 'vote',
+    [`rooms/${roomCode}/rouletteResult`]: null,
+    [`rooms/${roomCode}/rouletteSpin`]: null,
+    [`rooms/${roomCode}/rouletteAgreements`]: null,
+    [`rooms/${roomCode}/rouletteAgree`]: null,
+    [`rooms/${roomCode}/tieDecisionProposal`]: null,
+    [`rooms/${roomCode}/tieDecisionAgreements`]: null
+  }).then(() => {
+    tmpVote = {};
+    activeProposalId = null;
+    goToStep(2);
+  });
+}
+
+function createRouletteSpin(onlyNames = null) {
   const spinRef = db.ref(`rooms/${roomCode}/rouletteSpin`);
   spinRef.transaction(current => {
     if (current) return;
     return {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      spinDeg: Math.floor(3600 + Math.random() * 3600),
+      spinDeg: Math.floor(7200 + Math.random() * 7200),
+      onlyNames: onlyNames || null,
       startedAt: firebase.database.ServerValue.TIMESTAMP,
       by: myNick
     };
+  }).then(result => {
+    if (result.committed) {
+      db.ref().update({
+        [`rooms/${roomCode}/tieDecisionProposal`]: null,
+        [`rooms/${roomCode}/tieDecisionAgreements`]: null
+      });
+          }
   });
 }
 
@@ -827,10 +917,13 @@ function startRouletteEngine(spinState) {
       },
       [`rooms/${roomCode}/rouletteSpin`]: null,
       [`rooms/${roomCode}/rouletteAgreements`]: null,
-      [`rooms/${roomCode}/rouletteAgree`]: null
+      [`rooms/${roomCode}/rouletteAgree`]: null,
+      [`rooms/${roomCode}/tieDecisionProposal`]: null,
+      [`rooms/${roomCode}/tieDecisionAgreements`]: null
     });
     isSpinning = false;
-  }, 6200);
+    activeProposalId = null;
+  }, 9300);
 }
 
 function closeModal() {
