@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎮 게임 투표</title>
+<link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a22;
+  --surface2: #22222e;
+  --border: rgba(255,255,255,0.08);
+  --accent: #7c6ff7;
+  --accent2: #f7a06f;
+  --accent3: #6ff7b8;
+  --text: #f0f0f8;
+  --muted: rgba(240,240,248,0.45);
+  --danger: #f76f6f;
+  --warn: #f7d06f;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans KR', sans-serif;
+  min-height: 100vh;
+}
+.noise {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+}
+.glow {
+  position: fixed; width: 600px; height: 600px;
+  border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, rgba(124,111,247,0.12) 0%, transparent 70%);
+  top: -200px; left: -100px;
+}
+.glow2 {
+  position: fixed; width: 400px; height: 400px;
+  border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0;
+  background: radial-gradient(circle, rgba(247,160,111,0.08) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+}
+.wrap { position: relative; z-index: 1; max-width: 660px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+/* Header */
+.header { text-align: center; margin-bottom: 2.5rem; }
+.header h1 {
+  font-family: 'Gmarket Sans', sans-serif;
+  font-size: 2rem; font-weight: 700; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff 30%, var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 0.4rem;
+}
+.header p { color: var(--muted); font-size: 0.9rem; }
+
+/* Firebase config banner */
+#config-banner {
+  background: rgba(247,160,111,0.1);
+  border: 1px solid rgba(247,160,111,0.3);
+  border-radius: 14px; padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+#config-banner h3 { font-size: 0.95rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.75rem; }
+#config-banner p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-bottom: 0.75rem; }
+#config-banner ol { font-size: 0.82rem; color: var(--muted); line-height: 2; padding-left: 1.2rem; margin-bottom: 1rem; }
+#config-banner ol li b { color: var(--text); }
+.config-inputs { display: flex; flex-direction: column; gap: 8px; }
+.config-inputs input {
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 12px; font-size: 0.82rem;
+  color: var(--text); font-family: monospace; width: 100%;
+}
+.config-inputs input::placeholder { color: var(--muted); }
+.config-inputs input:focus { outline: none; border-color: var(--accent2); }
+#connect-btn {
+  margin-top: 10px; width: 100%; padding: 10px;
+  background: var(--accent2); color: #1a0e00; font-weight: 700;
+  border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+#connect-btn:hover { opacity: 0.9; }
+.conn-ok { display: none; text-align: center; font-size: 0.85rem; color: var(--accent3); padding: 0.5rem; }
+
+/* Tabs */
+.tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; background: var(--surface); border-radius: 12px; padding: 5px; }
+.tab {
+  flex: 1; padding: 9px 4px; border: none; border-radius: 8px;
+  background: transparent; color: var(--muted); font-size: 0.85rem;
+  cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans KR', sans-serif;
+  font-weight: 500;
+}
+.tab.active { background: var(--surface2); color: var(--text); }
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 10px;
+  transition: border-color 0.2s;
+}
+.card:hover { border-color: rgba(255,255,255,0.14); }
+
+/* Input row */
+.input-row { display: flex; gap: 8px; margin-bottom: 1rem; }
+.input-row input, input[type=text] {
+  flex: 1; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; color: var(--text);
+  font-size: 0.9rem; font-family: 'Noto Sans KR', sans-serif;
+}
+.input-row input:focus, input[type=text]:focus { outline: none; border-color: var(--accent); }
+.input-row input::placeholder { color: var(--muted); }
+.btn {
+  padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer;
+  font-weight: 700; font-size: 0.85rem; font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-danger { background: rgba(247,111,111,0.15); color: var(--danger); border: 1px solid rgba(247,111,111,0.2); padding: 6px 10px; border-radius: 8px; }
+.btn-danger:hover { background: rgba(247,111,111,0.25); }
+.btn-full { width: 100%; padding: 13px; font-size: 1rem; margin-top: 1rem; background: var(--accent); color: #fff; border-radius: 12px; }
+.btn-full:hover { opacity: 0.85; transform: translateY(-1px); }
+
+/* Section label */
+.sec-label { font-family: 'Gmarket Sans', sans-serif; font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
+.sec-hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+
+/* Game item */
+.game-item { display: flex; align-items: center; gap: 10px; }
+.game-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.game-name-text { flex: 1; font-size: 0.95rem; font-weight: 500; }
+
+/* Voter tags */
+.voter-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
+.vtag {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 5px 12px; font-size: 0.82rem;
+  display: flex; align-items: center; gap: 6px;
+}
+.vtag .xbtn { cursor: pointer; color: var(--muted); font-size: 14px; line-height: 1; }
+.vtag .xbtn:hover { color: var(--danger); }
+.vtag.done { border-color: rgba(111,247,184,0.3); color: var(--accent3); }
+
+/* Vote form */
+.vote-select-wrap { margin-bottom: 1.25rem; }
+.vote-select-wrap select {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 14px; color: var(--text);
+  font-size: 0.9rem; font-family: 'Noto Sans KR', sans-serif; width: 100%;
+}
+.vote-select-wrap select:focus { outline: none; border-color: var(--accent); }
+
+/* Rating stars */
+.rating-row { display: flex; align-items: center; gap: 12px; }
+.rating-game { flex: 1; font-size: 0.92rem; font-weight: 500; }
+.stars { display: flex; gap: 5px; }
+.star {
+  width: 32px; height: 32px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--surface2);
+  color: var(--muted); cursor: pointer; font-size: 0.8rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.12s;
+}
+.star:hover { border-color: var(--accent); color: var(--accent); }
+.star.sel { background: rgba(124,111,247,0.2); border-color: var(--accent); color: var(--accent); }
+.star.s1 { background: rgba(247,111,111,0.15); border-color: rgba(247,111,111,0.4); color: var(--danger); }
+
+/* Vote status */
+.vote-status { margin-top: 1rem; font-size: 0.82rem; color: var(--muted); text-align: center; }
+.prog-wrap { height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 6px; }
+.prog-bar { height: 100%; border-radius: 2px; background: var(--accent3); transition: width 0.4s; }
+
+/* Results */
+.result-item {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 10px;
+  transition: all 0.3s;
+}
+.result-item.winner { border-color: rgba(124,111,247,0.5); background: rgba(124,111,247,0.07); }
+.result-item.elim { opacity: 0.45; border-color: rgba(247,111,111,0.2); }
+.result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.result-gname { font-size: 1rem; font-weight: 700; }
+.result-right { display: flex; align-items: center; gap: 10px; }
+.result-pts { font-size: 1.4rem; font-weight: 700; font-family: 'Gmarket Sans', sans-serif; }
+.result-pts.winner { color: var(--accent); }
+.result-pts.elim { color: var(--danger); }
+.badge {
+  font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+  border-radius: 20px;
+}
+.badge-win { background: rgba(124,111,247,0.2); color: var(--accent); border: 1px solid rgba(124,111,247,0.3); }
+.badge-elim { background: rgba(247,111,111,0.15); color: var(--danger); border: 1px solid rgba(247,111,111,0.2); }
+.badge-warn { background: rgba(247,208,111,0.15); color: var(--warn); border: 1px solid rgba(247,208,111,0.2); }
+.bar-track { height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+.bar-fill.elim { background: var(--danger); }
+.voter-scores { display: flex; flex-wrap: wrap; gap: 6px; }
+.vs-chip {
+  font-size: 0.75rem; padding: 2px 10px; border-radius: 20px;
+  background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
+}
+
+/* Empty */
+.empty { text-align: center; color: var(--muted); padding: 2.5rem 1rem; font-size: 0.88rem; }
+
+/* Realtime indicator */
+.rt-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); margin-right: 6px; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.rt-label { font-size: 0.78rem; color: var(--accent3); display: flex; align-items: center; }
+
+.section { margin-bottom: 2rem; }
+</style>
+</head>
+<body>
+<div class="noise"></div>
+<div class="glow"></div>
+<div class="glow2"></div>
+<div class="wrap">
+
+  <div class="header">
+    <h1>🎮 게임 투표</h1>
+    <p>오늘 뭐 할지 같이 정해요</p>
+  </div>
+
+  <!-- Firebase Config Banner -->
+  <div id="config-banner">
+    <h3>⚙️ Firebase 연결 필요 (1회만 설정)</h3>
+    <p>실시간 데이터 공유를 위해 Firebase 프로젝트 설정값을 입력해주세요.<br>아래 단계를 따라하면 <b>5분</b>이면 됩니다.</p>
+    <ol>
+      <li><b>console.firebase.google.com</b> 접속 → 프로젝트 만들기</li>
+      <li>프로젝트 이름 입력 → Google Analytics 건너뛰기 → 완료</li>
+      <li>왼쪽 메뉴 <b>빌드 → Realtime Database</b> → 데이터베이스 만들기</li>
+      <li>테스트 모드로 시작 → 완료</li>
+      <li>상단 URL 복사 (예: <code style="color:var(--accent2)">https://xxx-default-rtdb.firebaseio.com</code>)</li>
+      <li>왼쪽 상단 톱니바퀴 → 프로젝트 설정 → 아래 앱 추가(&lt;/&gt; 웹) → 설정값 복사</li>
+    </ol>
+    <div class="config-inputs">
+      <input type="text" id="cfg-apiKey" placeholder="apiKey: AIzaSy..." />
+      <input type="text" id="cfg-dbUrl" placeholder="databaseURL: https://xxx-default-rtdb.firebaseio.com" />
+      <input type="text" id="cfg-projectId" placeholder="projectId: my-game-vote" />
+    </div>
+    <button id="connect-btn" onclick="connectFirebase()">🔥 Firebase 연결하기</button>
+    <p class="conn-ok" id="conn-ok">✅ 연결 완료! 이제 링크를 공유하세요.</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('setup')" id="tab-setup">🎯 후보 설정</button>
+    <button class="tab" onclick="switchTab('vote')" id="tab-vote">⭐ 투표</button>
+    <button class="tab" onclick="switchTab('result')" id="tab-result">📊 결과</button>
+  </div>
+
+  <!-- SETUP -->
+  <div id="phase-setup">
+    <div class="section">
+      <p class="sec-label">게임 후보</p>
+      <p class="sec-hint">누구나 후보를 추가할 수 있어요.</p>
+      <div class="input-row">
+        <input type="text" id="game-input" placeholder="게임 이름 입력..." onkeydown="if(event.key==='Enter')addGame()" />
+        <button class="btn btn-primary" onclick="addGame()">+ 추가</button>
+      </div>
+      <div id="game-list"></div>
+    </div>
+    <div class="section">
+      <p class="sec-label">참가자</p>
+      <p class="sec-hint">투표에 참가할 이름을 추가하세요.</p>
+      <div class="input-row">
+        <input type="text" id="voter-input" placeholder="이름 입력..." onkeydown="if(event.key==='Enter')addVoter()" />
+        <button class="btn btn-primary" onclick="addVoter()">+ 추가</button>
+      </div>
+      <div id="voter-tags"></div>
+    </div>
+    <button class="btn btn-full" onclick="goVote()">투표 시작하기 →</button>
+  </div>
+
+  <!-- VOTE -->
+  <div id="phase-vote" style="display:none">
+    <p class="sec-label">선호도 투표</p>
+    <p class="sec-hint">각 게임에 1~5점을 매겨주세요. (1점 = 싫음, 5점 = 너무 좋음)</p>
+    <div class="vote-select-wrap">
+      <select id="voter-select" onchange="renderVoteForm()"></select>
+    </div>
+    <div id="vote-form"></div>
+    <button class="btn btn-full" onclick="submitVote()">제출하기 ✓</button>
+    <div class="vote-status" id="vote-status">
+      <div id="status-text"></div>
+      <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="phase-result" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+      <p class="sec-label" style="margin:0">결과</p>
+      <span class="rt-label"><span class="rt-dot"></span>실시간 반영 중</span>
+    </div>
+    <div id="result-list"></div>
+  </div>
+
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+let db = null;
+let games = [];
+let voters = [];
+let votes = {};
+let currentRatings = {};
+let unsubscribers = [];
+
+// ── LOCAL FALLBACK (Firebase 없을 때) ──
+function localSave() {
+  localStorage.setItem('gv_games', JSON.stringify(games));
+  localStorage.setItem('gv_voters', JSON.stringify(voters));
+  localStorage.setItem('gv_votes', JSON.stringify(votes));
+}
+function localLoad() {
+  games = JSON.parse(localStorage.getItem('gv_games') || '[]');
+  voters = JSON.parse(localStorage.getItem('gv_voters') || '[]');
+  votes = JSON.parse(localStorage.getItem('gv_votes') || '{}');
+  renderAll();
+}
+
+// ── FIREBASE ──
+function connectFirebase() {
+  const apiKey = document.getElementById('cfg-apiKey').value.trim();
+  const dbUrl  = document.getElementById('cfg-dbUrl').value.trim();
+  const projectId = document.getElementById('cfg-projectId').value.trim();
+  if (!apiKey || !dbUrl || !projectId) { alert('세 항목 모두 입력해주세요.'); return; }
+
+  // Save config to localStorage for future visits
+  const cfg = { apiKey, databaseURL: dbUrl, projectId };
+  localStorage.setItem('gv_firebase_cfg', JSON.stringify(cfg));
+  initFirebase(cfg);
+}
+
+function initFirebase(cfg) {
+  try {
+    if (!firebase.apps.length) firebase.initializeApp(cfg);
+    db = firebase.database();
+    document.getElementById('config-banner').style.display = 'none';
+    document.getElementById('conn-ok').style.display = 'block';
+    subscribeFirebase();
+  } catch(e) {
+    alert('Firebase 연결 실패: ' + e.message);
+  }
+}
+
+function subscribeFirebase() {
+  const ref = db.ref('gamevote');
+  ref.on('value', snap => {
+    const d = snap.val() || {};
+    games  = d.games  || [];
+    voters = d.voters || [];
+    votes  = d.votes  || {};
+    renderAll();
+  });
+}
+
+function fbSet(path, val) {
+  if (db) {
+    db.ref('gamevote/' + path).set(val);
+  } else {
+    localSave();
+  }
+}
+
+// ── INIT ──
+window.onload = () => {
+  const saved = localStorage.getItem('gv_firebase_cfg');
+  if (saved) {
+    try {
+      const cfg = JSON.parse(saved);
+      document.getElementById('cfg-apiKey').value = cfg.apiKey || '';
+      document.getElementById('cfg-dbUrl').value = cfg.databaseURL || '';
+      document.getElementById('cfg-projectId').value = cfg.projectId || '';
+      initFirebase(cfg);
+    } catch(e) { localLoad(); }
+  } else {
+    localLoad();
+  }
+};
+
+// ── TABS ──
+function switchTab(tab) {
+  ['setup','vote','result'].forEach(t => {
+    document.getElementById('phase-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab === 'vote') renderVoterSelect();
+  if (tab === 'result') renderResults();
+}
+
+// ── RENDER ALL ──
+function renderAll() {
+  renderGameList();
+  renderVoterTags();
+  if (document.getElementById('phase-vote').style.display !== 'none') renderVoterSelect();
+  if (document.getElementById('phase-result').style.display !== 'none') renderResults();
+}
+
+// ── SETUP ──
+function renderGameList() {
+  const el = document.getElementById('game-list');
+  if (!games.length) { el.innerHTML = '<div class="empty">아직 게임 후보가 없어요.</div>'; return; }
+  el.innerHTML = games.map((g,i) => `
+    <div class="card"><div class="game-item">
+      <div class="game-dot"></div>
+      <span class="game-name-text">${g}</span>
+      <button class="btn btn-danger" onclick="removeGame(${i})">✕</button>
+    </div></div>
+  `).join('');
+}
+
+function addGame() {
+  const inp = document.getElementById('game-input');
+  const v = inp.value.trim();
+  if (!v || games.includes(v)) { inp.value=''; return; }
+  games.push(v);
+  inp.value = '';
+  fbSet('games', games);
+}
+
+function removeGame(i) {
+  games.splice(i, 1);
+  fbSet('games', games);
+}
+
+function renderVoterTags() {
+  const el = document.getElementById('voter-tags');
+  if (!voters.length) { el.innerHTML = '<div class="empty">참가자를 추가해주세요.</div>'; return; }
+  el.innerHTML = '<div class="voter-tags">' + voters.map((v,i) => `
+    <div class="vtag ${votes[v] ? 'done' : ''}">
+      ${v}${votes[v] ? ' ✓' : ''}
+      <span class="xbtn" onclick="removeVoter(${i})">✕</span>
+    </div>
+  `).join('') + '</div>';
+}
+
+function addVoter() {
+  const inp = document.getElementById('voter-input');
+  const v = inp.value.trim();
+  if (!v || voters.includes(v)) { inp.value=''; return; }
+  voters.push(v);
+  inp.value = '';
+  fbSet('voters', voters);
+}
+
+function removeVoter(i) {
+  const name = voters[i];
+  voters.splice(i, 1);
+  delete votes[name];
+  if (db) { db.ref('gamevote/voters').set(voters); db.ref('gamevote/votes').set(votes); }
+  else localSave();
+  renderAll();
+}
+
+function goVote() {
+  if (!games.length) { alert('게임 후보를 하나 이상 추가해주세요!'); return; }
+  if (!voters.length) { alert('참가자를 한 명 이상 추가해주세요!'); return; }
+  switchTab('vote');
+}
+
+// ── VOTE ──
+function renderVoterSelect() {
+  const sel = document.getElementById('voter-select');
+  const cur = sel.value;
+  sel.innerHTML = voters.map(v => `<option value="${v}">${v}${votes[v]?' ✓':''}</option>`).join('');
+  if (cur && voters.includes(cur)) sel.value = cur;
+  renderVoteForm();
+  updateStatus();
+}
+
+function renderVoteForm() {
+  const voter = document.getElementById('voter-select').value;
+  if (!voter) { document.getElementById('vote-form').innerHTML = ''; return; }
+  const existing = votes[voter] || {};
+  currentRatings = {...existing};
+  document.getElementById('vote-form').innerHTML = games.map(g => {
+    const s = currentRatings[g] || 0;
+    return `<div class="card">
+      <div class="rating-row">
+        <span class="rating-game">${g}</span>
+        <div class="stars" id="st-${encodeURIComponent(g)}">
+          ${[1,2,3,4,5].map(n => `<div class="star ${s===n&&n===1?'s1':s>=n&&s>0?'sel':''}" onclick="rate('${g.replace(/'/g,"\\'")}',${n})">${n}</div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function rate(game, score) {
+  currentRatings[game] = score;
+  const key = encodeURIComponent(game);
+  document.querySelectorAll(`#st-${key} .star`).forEach((s,i) => {
+    s.className = 'star';
+    if (score === 1 && i === 0) s.className = 'star s1';
+    else if (i+1 <= score && score > 1) s.className = 'star sel';
+    else if (i+1 === score && score === 1) s.className = 'star s1';
+  });
+}
+
+function submitVote() {
+  const voter = document.getElementById('voter-select').value;
+  if (!voter) return;
+  const missing = games.filter(g => !currentRatings[g]);
+  if (missing.length) { alert(`점수를 아직 안 매긴 게임이 있어요:\n${missing.join(', ')}`); return; }
+  votes[voter] = {...currentRatings};
+  if (db) db.ref('gamevote/votes/' + voter).set(votes[voter]);
+  else localSave();
+  renderVoterSelect();
+}
+
+function updateStatus() {
+  const done = voters.filter(v => votes[v]).length;
+  const total = voters.length;
+  document.getElementById('status-text').textContent = `${done} / ${total}명 투표 완료`;
+  document.getElementById('prog-bar').style.width = total ? (done/total*100)+'%' : '0%';
+}
+
+// ── RESULTS ──
+function renderResults() {
+  const el = document.getElementById('result-list');
+  const voteKeys = Object.keys(votes);
+  if (!voteKeys.length) { el.innerHTML = '<div class="empty">아직 투표 결과가 없어요.</div>'; return; }
+
+  const totals = games.map(g => {
+    const vscores = voters.map(v => ({ voter:v, score: votes[v] ? (votes[v][g]||0) : 0 })).filter(v=>v.score>0);
+    const sum = vscores.reduce((a,b)=>a+b.score,0);
+    const hasOne = vscores.some(v=>v.score===1);
+    const allOne = vscores.length && vscores.every(v=>v.score===1);
+    return { game:g, sum, vscores, hasOne, allOne };
+  }).sort((a,b)=>b.sum-a.sum);
+
+  const maxSum = Math.max(...totals.map(t=>t.sum), 1);
+  const topScore = totals[0]?.sum || 0;
+
+  el.innerHTML = totals.map(t => {
+    const isWin = t.sum === topScore && !t.allOne && t.sum > 0;
+    const isElim = t.allOne;
+    const barW = Math.round(t.sum/maxSum*100);
+    const badge = isWin ? `<span class="badge badge-win">🏆 1위</span>` :
+                  isElim ? `<span class="badge badge-elim">탈락</span>` :
+                  t.hasOne ? `<span class="badge badge-warn">⚠️ 1점 있음</span>` : '';
+    return `<div class="result-item ${isWin?'winner':''} ${isElim?'elim':''}">
+      <div class="result-top">
+        <span class="result-gname">${t.game}</span>
+        <div class="result-right">
+          ${badge}
+          <span class="result-pts ${isWin?'winner':''} ${isElim?'elim':''}">${t.sum}점</span>
+        </div>
+      </div>
+      <div class="bar-track"><div class="bar-fill ${isElim?'elim':''}" style="width:${barW}%"></div></div>
+      <div class="voter-scores">
+        ${t.vscores.map(vs=>`<span class="vs-chip">${vs.voter}: ${vs.score}점</span>`).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
