@@ -1,749 +1,708 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎮 게임 투표 & 룰렛</title>
-<link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0c0c10;
-  --surface: #16161e;
-  --surface2: #1e1e28;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --accent: #818cf8;
-  --accent2: #fb923c;
-  --accent3: #34d399;
-  --danger: #f87171;
-  --warn: #fbbf24;
-  --text: #e8e8f0;
-  --muted: rgba(232,232,240,0.4);
-  --muted2: rgba(232,232,240,0.6);
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; }
-
-/* 텍스트 커서 방지 (I자 모양 방지) */
-.no-select { user-select: none; -webkit-user-select: none; }
-.clickable { cursor: pointer; user-select: none; -webkit-user-select: none; }
-
-.bg-orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
-.orb1 { width: 500px; height: 500px; top: -150px; left: -100px; background: radial-gradient(circle, rgba(129,140,248,0.1), transparent 70%); }
-.orb2 { width: 400px; height: 400px; bottom: -100px; right: -50px; background: radial-gradient(circle, rgba(251,146,60,0.07), transparent 70%); }
-.wrap { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
-.screen { display: none; animation: fadeIn 0.3s ease; }
-.screen.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-.logo { text-align: center; margin-bottom: 2.5rem; }
-.logo h1 { font-family: 'Gmarket Sans', sans-serif; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #fff 20%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.3rem; }
-.logo p { color: var(--muted2); font-size: 0.88rem; }
-
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-bottom: 12px; }
-.card-title { font-family: 'Gmarket Sans', sans-serif; font-size: 0.9rem; font-weight: 500; margin-bottom: 1rem; color: var(--muted2); letter-spacing: 0.02em; }
-input[type=text], select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: var(--text); font-size: 0.95rem; font-family: 'Noto Sans KR', sans-serif; transition: border-color 0.15s; margin-bottom: 8px; }
-input[type=text]:focus, select:focus { outline: none; border-color: var(--accent); }
-input[type=text]::placeholder { color: var(--muted); }
-.input-row { display: flex; gap: 8px; }
-.input-row input { flex: 1; margin-bottom: 0; }
-
-.btn { padding: 11px 20px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.88rem; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; white-space: nowrap; user-select: none; }
-.btn-primary { background: var(--accent); color: #fff; }
-.btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
-.btn-accent2 { background: var(--accent2); color: #1a0800; }
-.btn-accent2:hover { opacity: 0.85; }
-.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
-.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
-.btn-danger-soft { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); color: var(--danger); padding: 6px 10px; border-radius: 8px; font-size: 0.82rem; }
-.btn-full { width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; margin-top: 0.75rem; }
-.btn-full.big { padding: 16px; font-size: 1.05rem; }
-
-/* Room 정보 상단 */
-.room-header-box { display: flex; justify-content: space-between; align-items: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 12px; }
-.room-code-val { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
-.copy-btn { background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.2); border-radius: 10px; padding: 6px 12px; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: 700; transition: all 0.15s; }
-.copy-btn:hover { background: rgba(129,140,248,0.22); }
-
-/* 단계 인디케이터 (네비게이션) */
-.step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 1.5rem; }
-.step-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--surface2); cursor: pointer; transition: 0.3s; border: 1px solid var(--border); }
-.step-dot.active { background: var(--accent); width: 30px; border-radius: 6px; border-color: var(--accent); }
-
-/* Members */
-.members-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 0.5rem; }
-.member-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 0.82rem; }
-.member-chip.me { border-color: rgba(129,140,248,0.3); color: var(--accent); }
-.member-chip.voted { border-color: rgba(52,211,153,0.3); color: var(--accent3); }
-
-/* 결과 강조 전광판 (스케치 반영) */
-.top-winners-area { margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 10px; }
-.winner-box-1st { background: linear-gradient(135deg, rgba(129,140,248,0.15), rgba(251,146,60,0.05)); border: 2px solid var(--accent); border-radius: 20px; padding: 1.8rem 1rem; text-align: center; position: relative; }
-.crown-icon { font-size: 2.5rem; display: block; margin-bottom: 0.3rem; }
-.winner-box-1st h2 { font-family: 'Gmarket Sans', sans-serif; font-size: 1.8rem; color: #fff; margin-bottom: 0.3rem; }
-.winner-box-1st p { color: var(--accent3); font-weight: 700; font-size: 1.05rem; }
-
-.sub-winners-row { display: flex; gap: 10px; }
-.winner-box-sub { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 15px; padding: 1rem; text-align: center; }
-.winner-box-sub h4 { font-family: 'Gmarket Sans', sans-serif; font-size: 1.1rem; color: #fff; margin-bottom: 0.2rem; }
-.winner-box-sub p { font-size: 0.85rem; color: var(--muted2); font-weight: 700; }
-
-/* Stars */
-.vote-game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 10px; transition: border-color 0.2s; }
-.vote-game-card.rated { border-color: rgba(129,140,248,0.3); }
-.vote-game-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
-.stars { display: flex; gap: 6px; }
-.star { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.12s; font-family: 'Noto Sans KR', sans-serif; user-select: none; }
-.star:hover { border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.08); }
-.star.sel { background: rgba(129,140,248,0.2); border-color: var(--accent); color: var(--accent); }
-.star.s1 { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.35); color: var(--danger); }
-.star.s1.sel { background: rgba(248,113,113,0.25); }
-
-/* Results */
-.result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 10px; }
-.result-card.winner { border-color: rgba(129,140,248,0.4); background: rgba(129,140,248,0.06); }
-.result-card.elim { opacity: 0.6; border-color: rgba(248,113,113,0.2); }
-.result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.result-gname { font-size: 0.95rem; font-weight: 700; }
-.result-pts { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; font-weight: 700; }
-.result-pts.winner { color: var(--accent); }
-.result-pts.elim { color: var(--danger); }
-.badge { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; display: inline-block; }
-.badge-win { background: rgba(129,140,248,0.2); color: var(--accent); border: 1px solid rgba(129,140,248,0.3); }
-.badge-elim { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
-.badge-warn { background: rgba(251,191,36,0.15); color: var(--warn); border: 1px solid rgba(251,191,36,0.2); }
-.bar-track { height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-.bar-fill.elim { background: var(--danger); }
-.voter-scores { display: flex; flex-wrap: wrap; gap: 6px; }
-.vs-chip { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
-
-/* 룰렛 & 모달 (UI 갇힘 방지 및 디자인 개선) */
-.roulette-container { position: relative; width: 280px; height: 280px; margin: 1.5rem auto; }
-#rouletteCanvas { width: 100%; height: 100%; transition: transform 6s cubic-bezier(0.1, 0, 0.1, 1); filter: drop-shadow(0 0 10px rgba(0,0,0,0.5)); }
-.roulette-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--danger); z-index: 10; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; backdrop-filter: blur(5px); }
-.modal-content { background: var(--surface); border: 1px solid var(--accent); border-radius: 25px; padding: 2rem; text-align: center; max-width: 380px; width: 100%; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-
-.empty { text-align: center; color: var(--muted); padding: 1.5rem; font-size: 0.85rem; }
-.big-emoji { font-size: 3.5rem; text-align: center; margin-bottom: 1rem; }
-.nick-wrap { max-width: 380px; margin: 0 auto; }
-</style>
-</head>
-<body>
-<div class="bg-orb orb1"></div>
-<div class="bg-orb orb2"></div>
-<div class="wrap">
-
-<div class="screen active" id="screen-nick">
-  <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
-  <div class="nick-wrap card no-select">
-    <div class="big-emoji">👾</div>
-    <p style="font-family:'Gmarket Sans'; font-size:1.3rem; text-align:center; margin-bottom:5px;">닉네임을 입력해주세요</p>
-    <p style="text-align:center; color:var(--muted2); font-size:0.85rem; margin-bottom:20px;">투표에서 사용할 이름이에요</p>
-    <input type="text" id="nick-input" placeholder="닉네임 입력..." maxlength="10" onkeydown="if(event.key==='Enter')confirmNick()" style="text-align:center; font-size:1.05rem;" />
-    <button class="btn btn-primary btn-full big" onclick="confirmNick()">시작하기 →</button>
-  </div>
-</div>
-
-<div class="screen" id="screen-home">
-  <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
-  
-  <div class="card no-select" style="border-color: rgba(129,140,248,0.3);">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
-      <span style="font-size:0.85rem; color:var(--muted2);">현재 프로필</span>
-      <span style="color:var(--accent); font-weight:700;">👤 <span id="display-my-nick"></span></span>
-    </div>
-    <button class="btn btn-ghost btn-full" onclick="changeNick()" style="margin-top:0; padding:8px;">닉네임 변경</button>
-  </div>
-
-  <div class="card no-select">
-    <h3 style="font-family:'Gmarket Sans'; margin-bottom:10px;">🏠 새로운 투표방 만들기</h3>
-    <p style="font-size:0.85rem; color:var(--muted2); margin-bottom:10px;">방 생성 시 기본 결과 설정 옵션</p>
-    <select id="setting-mode">
-      <option value="vote">일반 투표 결과 보기 (기본)</option>
-      <option value="roulette">처음부터 룰렛으로 결정하기</option>
-    </select>
-    <button class="btn btn-primary btn-full big" onclick="createRoom()">방 만들기</button>
-  </div>
-
-  <div class="card no-select">
-    <h3 style="font-family:'Gmarket Sans'; margin-bottom:10px;">🚪 코드로 방 입장하기</h3>
-    <div class="input-row">
-      <input type="text" id="join-code-input" placeholder="6자리 코드 입력..." maxlength="6" style="text-transform:uppercase; letter-spacing:2px;" onkeydown="if(event.key==='Enter')joinRoom()" />
-      <button class="btn btn-accent2" onclick="joinRoom()">입장</button>
-    </div>
-  </div>
-</div>
-
-<div class="screen" id="screen-room">
-  <div class="room-header-box no-select">
-    <div>
-      <span style="font-size:0.7rem; color:var(--muted); display:block;">ROOM CODE</span>
-      <span class="room-code-val" id="room-code-display"></span>
-    </div>
-    <div style="display:flex; gap:8px;">
-      <button class="copy-btn" id="copy-link-btn" onclick="copyLink()">🔗 링크 복사</button>
-      <button class="btn btn-ghost" style="padding:6px 12px; font-size:0.8rem;" onclick="leaveRoom()">나가기</button>
-    </div>
-  </div>
-
-  <div class="card no-select" style="padding: 1rem 1.25rem;">
-    <div class="card-title" style="margin-bottom:5px;">참가자 <span id="member-count"></span></div>
-    <div id="members-list"></div>
-  </div>
-
-  <div class="step-indicator no-select">
-    <div class="step-dot active" onclick="goToStep(1)" id="dot-1" title="1단계: 후보추가"></div>
-    <div class="step-dot" onclick="goToStep(2)" id="dot-2" title="2단계: 투표하기"></div>
-    <div class="step-dot" onclick="goToStep(3)" id="dot-3" title="3단계: 결과확인"></div>
-  </div>
-
-  <div id="step-1" class="room-step">
-    <div class="card no-select">
-      <p style="font-size:0.85rem; color:var(--muted2); margin-bottom:10px;">🎯 하고 싶은 게임 후보를 모두 추가해주세요</p>
-      <div class="input-row" style="margin-bottom:15px;">
-        <input type="text" id="game-input" placeholder="게임 이름 입력..." onkeydown="if(event.key==='Enter')addGame()" />
-        <button class="btn btn-primary" onclick="addGame()">+ 추가</button>
-      </div>
-      <div id="game-list"><div class="empty">아직 게임 후보가 없어요.</div></div>
-    </div>
-    <button class="btn btn-primary btn-full big" onclick="goToStep(2)">다음: 투표하러 가기 →</button>
-  </div>
-
-  <div id="step-2" class="room-step" style="display:none;">
-    <div id="vote-content"></div>
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="goToStep(1)">← 후보 추가</button>
-      <button class="btn btn-ghost" style="flex:1;" onclick="goToStep(3)">결과 보기 →</button>
-    </div>
-  </div>
-
-  <div id="step-3" class="room-step" style="display:none;">
-    <div id="result-content-area"></div>
-    <div style="margin-top:15px; text-align:center;">
-      <button class="btn btn-ghost" style="padding:8px 20px;" onclick="goToStep(2)">← 투표로 돌아가기</button>
-    </div>
-  </div>
-</div>
-
-</div>
-
-<div class="modal" id="result-modal">
-  <div class="modal-content no-select">
-    <div style="font-size:3.5rem; margin-bottom:10px;">🎉</div>
-    <h2 id="modal-game-name" style="font-family:'Gmarket Sans'; font-size:2rem; color:#fff; margin-bottom:5px;">-</h2>
-    <p id="modal-method-text" style="color:var(--accent3); font-weight:700; margin-bottom:25px;">룰렛으로 최종 선정되었습니다!</p>
-    <button class="btn btn-primary btn-full big" onclick="closeModal()">확인</button>
-  </div>
-</div>
-
-<div class="modal" id="agree-modal">
-  <div class="modal-content no-select">
-    <h3 style="font-family:'Gmarket Sans'; color:#fff; margin-bottom:10px;">🎡 룰렛으로 다시 정할까요?</h3>
-    <p style="color:var(--muted2); font-size:0.85rem; margin-bottom:20px;">투표 결과 대신 룰렛으로 결정합니다.<br>참가자 전원이 동의해야 실행됩니다.</p>
-    <div id="agree-status-text" style="font-weight:700; color:var(--accent); margin-bottom:20px; font-size:1.1rem;">동의 인원: 0명</div>
-    <div style="display:flex; gap:10px;">
-      <button class="btn btn-ghost" style="flex:1;" onclick="cancelAgreeModal()">✕ 취소</button>
-      <button class="btn btn-primary" style="flex:1;" onclick="sendAgree()">동의하기 ✓</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-<script>
-firebase.initializeApp({
-  apiKey: "AIzaSyBt_av2DXu9hP0kYGJFW9bsCAJ4qfKai9E",
-  databaseURL: "https://gameselecter-14467-default-rtdb.firebaseio.com",
-  projectId: "gameselecter-14467"
-});
-const db = firebase.database();
-
-let myNick = localStorage.getItem('gv_nick') || '';
-let roomCode = '';
-let roomData = {};
-let roomListener = null;
-let tmpVote = {};
-let currentStep = 1;
-let isSpinning = false;
-
-window.onload = () => {
-  const params = new URLSearchParams(window.location.search);
-  const codeFromUrl = params.get('room');
-  if (myNick) {
-    showScreen('home');
-    document.getElementById('display-my-nick').textContent = myNick;
-    if (codeFromUrl) {
-      document.getElementById('join-code-input').value = codeFromUrl.toUpperCase();
-      joinRoom();
-    }
-  } else {
-    showScreen('nick');
-    if (codeFromUrl) localStorage.setItem('gv_pending_room', codeFromUrl.toUpperCase());
-  }
-};
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + id).classList.add('active');
-}
-
-function confirmNick() {
-  const val = document.getElementById('nick-input').value.trim();
-  if (!val) { alert('닉네임을 입력해주세요!'); return; }
-  myNick = val;
-  localStorage.setItem('gv_nick', myNick);
-  document.getElementById('display-my-nick').textContent = myNick;
-  showScreen('home');
-  
-  const pending = localStorage.getItem('gv_pending_room');
-  if (pending) {
-    localStorage.removeItem('gv_pending_room');
-    document.getElementById('join-code-input').value = pending;
-    joinRoom();
-  }
-}
-
-function changeNick() {
-  localStorage.removeItem('gv_nick');
-  myNick = '';
-  document.getElementById('nick-input').value = '';
-  showScreen('nick');
-}
-
-function genCode() {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-}
-
-async function createRoom() {
-  const code = genCode();
-  const mode = document.getElementById('setting-mode').value;
-  await db.ref('rooms/' + code).set({
-    code, host: myNick,
-    settings: { mode: mode },
-    members: { [myNick]: true },
-    games: [], votes: {}, rouletteAgree: {}
-  });
-  enterRoom(code);
-}
-
-async function joinRoom() {
-  const code = document.getElementById('join-code-input').value.trim().toUpperCase();
-  if (code.length !== 6) { alert('6자리 방 코드를 입력해주세요!'); return; }
-  const snap = await db.ref('rooms/' + code).get();
-  if (!snap.exists()) { alert('존재하지 않는 방입니다.'); return; }
-  await db.ref(`rooms/${code}/members/${myNick}`).set(true);
-  enterRoom(code);
-}
-
-function enterRoom(code) {
-  roomCode = code;
-  tmpVote = {};
-  showScreen('room');
-  
-  const url = new URL(window.location.href);
-  url.searchParams.set('room', code);
-  window.history.replaceState({}, '', url);
-  
-  document.getElementById('room-code-display').textContent = code;
-  
-  if (roomListener) db.ref('rooms/' + roomCode).off('value', roomListener);
-  roomListener = db.ref('rooms/' + code).on('value', snap => {
-    if (!snap.exists()) { alert('방이 삭제되었습니다.'); leaveRoom(); return; }
-    roomData = snap.val();
-    renderRoom();
-    checkProcess();
-  });
-  
-  goToStep(1);
-}
-
-function leaveRoom() {
-  if (roomListener) { db.ref('rooms/' + roomCode).off('value', roomListener); roomListener = null; }
-  roomCode = ''; roomData = {}; tmpVote = {};
-  const url = new URL(window.location.href);
-  url.searchParams.delete('room');
-  window.history.replaceState({}, '', url);
-  showScreen('home');
-}
-
-function copyLink() {
-  const url = `${location.origin}${location.pathname}?room=${roomCode}`;
-  navigator.clipboard.writeText(url).then(() => {
-    const btn = document.getElementById('copy-link-btn');
-    btn.textContent = '✅ 복사 완료!';
-    setTimeout(() => { btn.textContent = '🔗 링크 복사'; }, 2000);
-  });
-}
-
-function goToStep(step) {
-  currentStep = step;
-  document.querySelectorAll('.room-step').forEach((el, idx) => {
-    el.style.display = (idx + 1 === step) ? 'block' : 'none';
-  });
-  document.querySelectorAll('.step-dot').forEach((el, idx) => {
-    el.classList.toggle('active', idx + 1 === step);
-  });
-  renderRoom();
-}
-
-function renderRoom() {
-  renderMembers();
-  if(currentStep === 1) renderGameList();
-  if(currentStep === 2) renderVoteTab();
-  if(currentStep === 3) renderResultTab();
-}
-
-function renderMembers() {
-  const members = Object.keys(roomData.members || {});
-  const votes = roomData.votes || {};
-  document.getElementById('member-count').textContent = `(${members.length}명)`;
-  document.getElementById('members-list').innerHTML = members.length ?
-    `<div class="members-wrap">${members.map(n =>
-      `<div class="member-chip ${n===myNick?'me':''} ${votes[n]?'voted':''}">${n===myNick?'👤':'👥'} ${n}${votes[n]?' ✓':''}</div>`
-    ).join('')}</div>` : '<div class="empty">참가자 없음</div>';
-}
-
-function renderGameList() {
-  const games = roomData.games || [];
-  const el = document.getElementById('game-list');
-  if (!games.length) { el.innerHTML = '<div class="empty">아직 추가된 게임이 없습니다.</div>'; return; }
-  el.innerHTML = games.map((g, i) =>
-    `<div class="game-item no-select" style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
-      <span>🎮 ${g}</span>
-      <button class="btn btn-danger-soft" style="padding:4px 8px;" onclick="removeGame(${i})">✕</button>
-    </div>`
-  ).join('');
-}
-
-async function addGame() {
-  const inp = document.getElementById('game-input');
-  const val = inp.value.trim();
-  if (!val) return;
-  const games = [...(roomData.games || [])];
-  if (games.includes(val)) { inp.value = ''; return; }
-  games.push(val);
-  await db.ref(`rooms/${roomCode}/games`).set(games);
-  inp.value = '';
-}
-
-async function removeGame(i) {
-  const games = [...(roomData.games || [])];
-  games.splice(i, 1);
-  await db.ref(`rooms/${roomCode}/games`).set(games);
-}
-
-function renderVoteTab() {
-  const el = document.getElementById('vote-content');
-  const games = roomData.games || [];
-  const myVoteSaved = (roomData.votes || {})[myNick];
-  const members = Object.keys(roomData.members || {});
-  const votedCount = Object.keys(roomData.votes || {}).length;
-
-  if (!games.length) { el.innerHTML = '<div class="card empty">후보 게임을 먼저 추가해주세요.</div>'; return; }
-
-  const currentVote = myVoteSaved || tmpVote;
-  let html = `<div class="card no-select"><p style="font-size:0.85rem; color:var(--muted2); margin-bottom:15px;">⭐ 각 게임에 점수를 매겨주세요 (1점=싫음, 5점=좋음)</p>`;
-
-  html += games.map(g => {
-    const s = currentVote[g] || 0;
-    const stars = [1,2,3,4,5].map(n => {
-      let cls = 'star';
-      if (n <= s) cls += n === 1 ? ' s1 sel' : ' sel';
-      const disabled = myVoteSaved ? 'style="pointer-events:none; opacity:0.7;"' : '';
-      return `<div class="${cls}" onclick="rateStar('${g.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}',${n})" ${disabled}>${n}</div>`;
-    }).join('');
-    return `<div class="vote-game-card ${s>0?'rated':''}"><div class="vote-game-name">${g}</div><div class="stars" id="vst-${encodeURIComponent(g)}">${stars}</div></div>`;
-  }).join('');
-
-  if (!myVoteSaved) {
-    html += `<button class="btn btn-primary btn-full big" onclick="submitVote()">투표 제출하기 ✓</button>`;
-  } else {
-    html += `<div style="text-align:center; margin-top:15px; font-weight:700; color:var(--accent3);">✅ 투표 완료! 다른 참가자를 기다리는 중...</div>`;
-    html += `<button class="btn btn-ghost btn-full" onclick="resetMyVote()">다시 투표하기</button>`;
-  }
-
-  html += `<div style="margin-top:15px; text-align:center; font-size:0.85rem; color:var(--muted2);">${votedCount} / ${members.length}명 투표 완료</div></div>`;
-  el.innerHTML = html;
-}
-
-function rateStar(game, score) {
-  if ((roomData.votes || {})[myNick]) return;
-  tmpVote[game] = score;
-  const key = encodeURIComponent(game);
-  document.querySelectorAll(`#vst-${key} .star`).forEach((s, i) => {
-    s.className = 'star';
-    if (i+1 <= score) s.className += i === 0 ? ' s1 sel' : ' sel';
-  });
-  document.querySelector(`#vst-${key}`)?.closest('.vote-game-card').classList.add('rated');
-}
-
-async function submitVote() {
-  const games = roomData.games || [];
-  const missing = games.filter(g => !tmpVote[g]);
-  if (missing.length) { alert("모든 게임에 점수를 매겨주세요!"); return; }
-  await db.ref(`rooms/${roomCode}/votes/${myNick}`).set({...tmpVote});
-  tmpVote = {};
-}
-
-async function resetMyVote() {
-  await db.ref(`rooms/${roomCode}/votes/${myNick}`).remove();
-  tmpVote = {};
-}
-
-/* 🏆 결과 및 알고리즘 연산 (1점 패널티 반영) */
-function renderResultTab() {
-  const el = document.getElementById('result-content-area');
-  const members = Object.keys(roomData.members || {});
-  const votes = roomData.votes || {};
-  const games = roomData.games || [];
-  
-  if (!games.length) { el.innerHTML = '<div class="card empty">게임 후보가 없습니다.</div>'; return; }
-  if (Object.keys(votes).length < members.length || members.length === 0) {
-    el.innerHTML = `<div class="card empty" style="padding:3rem 1rem;">
-      <div style="font-size:3rem; margin-bottom:10px;">🔒</div>
-      <h3 style="margin-bottom:10px;">아직 투표가 끝나지 않았습니다</h3>
-      <p style="color:var(--muted2); font-size:0.85rem;">모든 인원이 투표를 완료해야 결과가 공개됩니다.<br>(${Object.keys(votes).length} / ${members.length}명 완료)</p>
-    </div>`;
-    return;
-  }
-
-  // 1차 점수 합산
-  let scores = games.map(g => {
-    let sum = 0;
-    let ones = 0;
-    let details = [];
-    members.forEach(m => {
-      const s = votes[m]?.[g] || 0;
-      sum += s;
-      if(s === 1) ones++;
-      details.push(`${m}: ${s}점`);
-    });
-    return { name: g, total: sum, ones: ones, details: details };
-  });
-
-  // 정렬 (1순위: 1점 받은 항목은 강제로 뒤로 배치, 2순위: 총점 높은 순)
-  scores.sort((a,b) => {
-    const aHasOne = a.ones > 0;
-    const bHasOne = b.ones > 0;
-    if (aHasOne && !bHasOne) return 1;  // a가 1점 있으면 뒤로
-    if (!aHasOne && bHasOne) return -1; // b가 1점 있으면 뒤로
-    return b.total - a.total;           // 둘 다 1점이 있거나 없으면 총점 순
-  });
-
-  const isRouletteMode = roomData.settings?.mode === 'roulette';
-  const winner = scores[0];
-  const second = scores[1];
-  const third = scores[2];
-
-  // 1위/2위/3위 스케치 전광판 렌더링
-  let html = `<div class="top-winners-area no-select">`;
-  
-  if (isRouletteMode) {
-    html += `<div class="winner-box-1st" style="border-color:var(--accent3);">
-      <span class="crown-icon">🎡</span>
-      <h2 style="color:var(--accent3);">룰렛 대기중</h2>
-      <p style="color:var(--muted2);">아래 룰렛을 돌려 최종 게임을 정합니다</p>
-    </div>`;
-  } else {
-    html += `<div class="winner-box-1st">
-      <span class="crown-icon">👑</span>
-      <h2>${winner.name}</h2>
-      <p>${winner.total}점 • 투표로 최종 선정!</p>
-    </div>`;
-    
-    if (second || third) {
-      html += `<div class="sub-winners-row">`;
-      if (second) {
-        html += `<div class="winner-box-sub">
-          <span style="font-size:1.2rem; display:block;">🥈</span>
-          <h4>${second.name}</h4>
-          <p>${second.total}점 ${second.ones > 0 ? '(⚠️1점)' : ''}</p>
-        </div>`;
-      }
-      if (third) {
-        html += `<div class="winner-box-sub">
-          <span style="font-size:1.2rem; display:block;">🥉</span>
-          <h4>${third.name}</h4>
-          <p>${third.total}점 ${third.ones > 0 ? '(⚠️1점)' : ''}</p>
-        </div>`;
-      }
-      html += `</div>`;
-    }
-  }
-  html += `</div>`;
-
-  // 세부 순위표 (1점 패널티 이유 표시)
-  html += `<div class="card no-select"><h4 style="margin-bottom:12px;">📊 세부 득표 현황</h4>`;
-  
-  // 최고 점수 찾기 (순수 득표 기준)
-  const maxActualScore = Math.max(...scores.map(s => s.total));
-
-  scores.forEach((s, idx) => {
-    let badge = '';
-    if (idx === 0 && !isRouletteMode) badge = '<span class="badge badge-win">🏆 최종 1위</span>';
-    else if (s.ones > 0) {
-      if (s.total === maxActualScore) {
-        badge = `<span class="badge badge-elim">⚠️ 최다 점수이나 1점 반대로 1위 불가</span>`;
-      } else {
-        badge = `<span class="badge badge-warn">⚠️ 1점 ${s.ones}명</span>`;
-      }
-    }
-    
-    html += `<div class="result-card ${idx===0 && !isRouletteMode ? 'winner' : ''} ${s.ones > 0 ? 'elim' : ''}">
-      <div class="result-top">
-        <span class="result-gname">${idx+1}. ${s.name}</span>
-        <div style="display:flex; align-items:center; gap:8px;">${badge}<span class="result-pts">${s.total}점</span></div>
-      </div>
-      <div class="voter-scores" style="margin-top:5px;">${s.details.map(d=>`<span class="vs-chip">${d}</span>`).join('')}</div>
-    </div>`;
-  });
-  html += `</div>`;
-
-  // 룰렛 영역
-  html += `<div class="card no-select" id="roulette-box" style="display:${isRouletteMode || isSpinning ? 'block' : 'none'};">
-    <h4 style="text-align:center; margin-bottom:5px;">🎡 점수 비례 룰렛</h4>
-    <p style="font-size:0.8rem; color:var(--muted2); text-align:center;">획득 점수가 높을수록 당첨 칸이 넓어집니다</p>
-    <div class="roulette-container">
-      <div class="roulette-arrow"></div>
-      <canvas id="rouletteCanvas" width="280" height="280"></canvas>
-    </div>
-  </div>`;
-
-  if (!isRouletteMode) {
-    html += `<button class="btn btn-accent2 btn-full big" onclick="openAgreeModal()">🎡 결과가 아쉽다면? 룰렛 돌리기 (전원 동의)</button>`;
-  } else {
-    html += `<button class="btn btn-primary btn-full big" id="btn-spin-direct" onclick="openAgreeModal()">룰렛 돌리기 (전원 동의 필요)</button>`;
-  }
-
-  el.innerHTML = html;
-  if (isRouletteMode || document.getElementById('roulette-box').style.display === 'block') {
-    initRouletteCanvas(scores);
-  }
-}
-
-/* 🎡 자동 프로세스 및 동의 로직 완벽 연동 */
-function checkProcess() {
-  const members = Object.keys(roomData.members || {});
-  const votes = Object.keys(roomData.votes || {});
-  
-  // 1. 모두 투표 시 자동으로 3단계(결과) 이동
-  if (members.length > 0 && members.length === votes.length && currentStep === 2) {
-    goToStep(3);
-  }
-
-  // 2. 룰렛 실시간 동의 체크
-  const agrees = Object.keys(roomData.rouletteAgree || {});
-  const modal = document.getElementById('agree-modal');
-  const statusText = document.getElementById('agree-status-text');
-
-  if (agrees.length > 0) {
-    if (modal.style.display !== 'flex') modal.style.display = 'flex';
-    statusText.textContent = `현재 동의 인원: ${agrees.length} / ${members.length}명`;
-    
-    // 만약 전원 동의 달성 시 -> 모달 닫고 즉시 룰렛 스타트!
-    if (agrees.length === members.length && !isSpinning) {
-      modal.style.display = 'none';
-      startRouletteEngine();
-    }
-  } else {
-    modal.style.display = 'none';
-  }
-}
-
-function openAgreeModal() {
-  db.ref(`rooms/${roomCode}/rouletteAgree/${myNick}`).set(true);
-}
-
-function sendAgree() {
-  db.ref(`rooms/${roomCode}/rouletteAgree/${myNick}`).set(true);
-}
-
-function cancelAgreeModal() {
-  // 나를 포함하여 동의 데이터 모두 초기화 (취소)
-  db.ref(`rooms/${roomCode}/rouletteAgree`).remove();
-  document.getElementById('agree-modal').style.display = 'none';
-}
-
-/* 🎨 룰렛 물리 엔진 */
-let currentRouletteItems = [];
-function initRouletteCanvas(scores) {
-  currentRouletteItems = scores;
-  const canvas = document.getElementById('rouletteCanvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const totalScore = scores.reduce((a,b) => a + b.total, 0);
-  let startAngle = 0;
-
-  ctx.clearRect(0, 0, 280, 280);
-  scores.forEach((s, idx) => {
-    const sliceAngle = (s.total / totalScore) * 2 * Math.PI;
-    ctx.beginPath();
-    ctx.fillStyle = `hsl(${idx * (360 / scores.length)}, 65%, 55%)`;
-    ctx.moveTo(140, 140);
-    ctx.arc(140, 140, 135, startAngle, startAngle + sliceAngle);
-    ctx.fill();
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "#1e1e28";
-    ctx.stroke();
-    
-    // 텍스트
-    ctx.save();
-    ctx.translate(140, 140);
-    ctx.rotate(startAngle + sliceAngle / 2);
-    ctx.fillStyle = "#fff";
-    ctx.font = "bold 13px Noto Sans KR";
-    ctx.fillText(s.name.substring(0, 7), 65, 5);
-    ctx.restore();
-    
-    startAngle += sliceAngle;
-  });
-}
-
-function startRouletteEngine() {
-  if (isSpinning) return;
-  isSpinning = true;
-  
-  const box = document.getElementById('roulette-box');
-  if(box) box.style.display = 'block';
-  
-  const canvas = document.getElementById('rouletteCanvas');
-  const spinDeg = Math.floor(3600 + Math.random() * 3600); // 10바퀴 이상 회전
-  canvas.style.transform = `rotate(${spinDeg}deg)`;
-
-  setTimeout(() => {
-    // 화살표(270도 위치) 기준 최종 당첨자 연산
-    const totalScore = currentRouletteItems.reduce((a,b) => a + b.total, 0);
-    const actualDeg = spinDeg % 360;
-    const winningAngleDeg = (360 - actualDeg + 270) % 360;
-    
-    let cumulativeDeg = 0;
-    let winnerName = currentRouletteItems[0].name;
-    
-    for(let s of currentRouletteItems) {
-      const sliceDeg = (s.total / totalScore) * 360;
-      cumulativeDeg += sliceDeg;
-      if (winningAngleDeg <= cumulativeDeg) {
-        winnerName = s.name;
-        break;
-      }
-    }
-    
-    document.getElementById('modal-game-name').textContent = winnerName;
-    document.getElementById('result-modal').style.display = 'flex';
-    
-    // 룰렛 상태 초기화
-    db.ref(`rooms/${roomCode}/rouletteAgree`).remove();
-    isSpinning = false;
-  }, 6200);
-}
-
-function closeModal() {
-  document.getElementById('result-modal').style.display = 'none';
-}
-</script>
-</body>
-</html>
+ (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
+diff --git a/game-vote.html b/game-vote.html
+index 8b2e75c3bffe1ee964fc6d27d25260f76feff7db..54afa05210ac6e220dff76f6da5316c4ef3e25a3 100644
+--- a/game-vote.html
++++ b/game-vote.html
+@@ -17,50 +17,51 @@
+   --accent3: #34d399;
+   --danger: #f87171;
+   --warn: #fbbf24;
+   --text: #e8e8f0;
+   --muted: rgba(232,232,240,0.4);
+   --muted2: rgba(232,232,240,0.6);
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; }
+ 
+ /* 텍스트 커서 방지 (I자 모양 방지) */
+ .no-select { user-select: none; -webkit-user-select: none; }
+ .clickable { cursor: pointer; user-select: none; -webkit-user-select: none; }
+ 
+ .bg-orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+ .orb1 { width: 500px; height: 500px; top: -150px; left: -100px; background: radial-gradient(circle, rgba(129,140,248,0.1), transparent 70%); }
+ .orb2 { width: 400px; height: 400px; bottom: -100px; right: -50px; background: radial-gradient(circle, rgba(251,146,60,0.07), transparent 70%); }
+ .wrap { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+ .screen { display: none; animation: fadeIn 0.3s ease; }
+ .screen.active { display: block; }
+ @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+ 
+ .logo { text-align: center; margin-bottom: 2.5rem; }
+ .logo h1 { font-family: 'Gmarket Sans', sans-serif; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #fff 20%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.3rem; }
+ .logo p { color: var(--muted2); font-size: 0.88rem; }
++.app-version { text-align: center; color: var(--muted); font-size: 0.68rem; letter-spacing: 0.03em; margin-top: 1.25rem; }
+ 
+ .card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-bottom: 12px; }
+ .card-title { font-family: 'Gmarket Sans', sans-serif; font-size: 0.9rem; font-weight: 500; margin-bottom: 1rem; color: var(--muted2); letter-spacing: 0.02em; }
+ input[type=text], select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: var(--text); font-size: 0.95rem; font-family: 'Noto Sans KR', sans-serif; transition: border-color 0.15s; margin-bottom: 8px; }
+ input[type=text]:focus, select:focus { outline: none; border-color: var(--accent); }
+ input[type=text]::placeholder { color: var(--muted); }
+ .input-row { display: flex; gap: 8px; }
+ .input-row input { flex: 1; margin-bottom: 0; }
+ 
+ .btn { padding: 11px 20px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.88rem; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; white-space: nowrap; user-select: none; }
+ .btn-primary { background: var(--accent); color: #fff; }
+ .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+ .btn-accent2 { background: var(--accent2); color: #1a0800; }
+ .btn-accent2:hover { opacity: 0.85; }
+ .btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
+ .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+ .btn-danger-soft { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); color: var(--danger); padding: 6px 10px; border-radius: 8px; font-size: 0.82rem; }
+ .btn-full { width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; margin-top: 0.75rem; }
+ .btn-full.big { padding: 16px; font-size: 1.05rem; }
+ 
+ /* Room 정보 상단 */
+ .room-header-box { display: flex; justify-content: space-between; align-items: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 12px; }
+ .room-code-val { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
+ .copy-btn { background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.2); border-radius: 10px; padding: 6px 12px; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: 700; transition: all 0.15s; }
+ .copy-btn:hover { background: rgba(129,140,248,0.22); }
+@@ -153,50 +154,52 @@ input[type=text]::placeholder { color: var(--muted); }
+   <div class="card no-select" style="border-color: rgba(129,140,248,0.3);">
+     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+       <span style="font-size:0.85rem; color:var(--muted2);">현재 프로필</span>
+       <span style="color:var(--accent); font-weight:700;">👤 <span id="display-my-nick"></span></span>
+     </div>
+     <button class="btn btn-ghost btn-full" onclick="changeNick()" style="margin-top:0; padding:8px;">닉네임 변경</button>
+   </div>
+ 
+   <div class="card no-select">
+     <h3 style="font-family:'Gmarket Sans'; margin-bottom:10px;">🏠 새로운 투표방 만들기</h3>
+     <p style="font-size:0.85rem; color:var(--muted2); margin-bottom:10px;">방 생성 시 기본 결과 설정 옵션</p>
+     <select id="setting-mode">
+       <option value="vote">일반 투표 결과 보기 (기본)</option>
+       <option value="roulette">처음부터 룰렛으로 결정하기</option>
+     </select>
+     <button class="btn btn-primary btn-full big" onclick="createRoom()">방 만들기</button>
+   </div>
+ 
+   <div class="card no-select">
+     <h3 style="font-family:'Gmarket Sans'; margin-bottom:10px;">🚪 코드로 방 입장하기</h3>
+     <div class="input-row">
+       <input type="text" id="join-code-input" placeholder="6자리 코드 입력..." maxlength="6" style="text-transform:uppercase; letter-spacing:2px;" onkeydown="if(event.key==='Enter')joinRoom()" />
+       <button class="btn btn-accent2" onclick="joinRoom()">입장</button>
+     </div>
+   </div>
++
++  <div class="app-version no-select">v1.7</div>
+ </div>
+ 
+ <div class="screen" id="screen-room">
+   <div class="room-header-box no-select">
+     <div>
+       <span style="font-size:0.7rem; color:var(--muted); display:block;">ROOM CODE</span>
+       <span class="room-code-val" id="room-code-display"></span>
+     </div>
+     <div style="display:flex; gap:8px;">
+       <button class="copy-btn" id="copy-link-btn" onclick="copyLink()">🔗 링크 복사</button>
+       <button class="btn btn-ghost" style="padding:6px 12px; font-size:0.8rem;" onclick="leaveRoom()">나가기</button>
+     </div>
+   </div>
+ 
+   <div class="card no-select" style="padding: 1rem 1.25rem;">
+     <div class="card-title" style="margin-bottom:5px;">참가자 <span id="member-count"></span></div>
+     <div id="members-list"></div>
+   </div>
+ 
+   <div class="step-indicator no-select">
+     <div class="step-dot active" onclick="goToStep(1)" id="dot-1" title="1단계: 후보추가"></div>
+     <div class="step-dot" onclick="goToStep(2)" id="dot-2" title="2단계: 투표하기"></div>
+     <div class="step-dot" onclick="goToStep(3)" id="dot-3" title="3단계: 결과확인"></div>
+   </div>
+ 
+@@ -246,50 +249,51 @@ input[type=text]::placeholder { color: var(--muted); }
+     <div id="agree-status-text" style="font-weight:700; color:var(--accent); margin-bottom:20px; font-size:1.1rem;">동의 인원: 0명</div>
+     <div style="display:flex; gap:10px;">
+       <button class="btn btn-ghost" style="flex:1;" onclick="cancelAgreeModal()">✕ 취소</button>
+       <button class="btn btn-primary" style="flex:1;" onclick="sendAgree()">동의하기 ✓</button>
+     </div>
+   </div>
+ </div>
+ 
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+ <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+ <script>
+ firebase.initializeApp({
+   apiKey: "AIzaSyBt_av2DXu9hP0kYGJFW9bsCAJ4qfKai9E",
+   databaseURL: "https://gameselecter-14467-default-rtdb.firebaseio.com",
+   projectId: "gameselecter-14467"
+ });
+ const db = firebase.database();
+ 
+ let myNick = localStorage.getItem('gv_nick') || '';
+ let roomCode = '';
+ let roomData = {};
+ let roomListener = null;
+ let tmpVote = {};
+ let currentStep = 1;
+ let isSpinning = false;
++let activeSpinId = null;
+ 
+ window.onload = () => {
+   const params = new URLSearchParams(window.location.search);
+   const codeFromUrl = params.get('room');
+   if (myNick) {
+     showScreen('home');
+     document.getElementById('display-my-nick').textContent = myNick;
+     if (codeFromUrl) {
+       document.getElementById('join-code-input').value = codeFromUrl.toUpperCase();
+       joinRoom();
+     }
+   } else {
+     showScreen('nick');
+     if (codeFromUrl) localStorage.setItem('gv_pending_room', codeFromUrl.toUpperCase());
+   }
+ };
+ 
+ function showScreen(id) {
+   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+   document.getElementById('screen-' + id).classList.add('active');
+ }
+ 
+ function confirmNick() {
+   const val = document.getElementById('nick-input').value.trim();
+   if (!val) { alert('닉네임을 입력해주세요!'); return; }
+@@ -303,51 +307,51 @@ function confirmNick() {
+     localStorage.removeItem('gv_pending_room');
+     document.getElementById('join-code-input').value = pending;
+     joinRoom();
+   }
+ }
+ 
+ function changeNick() {
+   localStorage.removeItem('gv_nick');
+   myNick = '';
+   document.getElementById('nick-input').value = '';
+   showScreen('nick');
+ }
+ 
+ function genCode() {
+   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+   return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+ }
+ 
+ async function createRoom() {
+   const code = genCode();
+   const mode = document.getElementById('setting-mode').value;
+   await db.ref('rooms/' + code).set({
+     code, host: myNick,
+     settings: { mode: mode },
+     members: { [myNick]: true },
+-    games: [], votes: {}, rouletteAgree: {}
++    games: [], votes: {}, rouletteAgreements: {}
+   });
+   enterRoom(code);
+ }
+ 
+ async function joinRoom() {
+   const code = document.getElementById('join-code-input').value.trim().toUpperCase();
+   if (code.length !== 6) { alert('6자리 방 코드를 입력해주세요!'); return; }
+   const snap = await db.ref('rooms/' + code).get();
+   if (!snap.exists()) { alert('존재하지 않는 방입니다.'); return; }
+   await db.ref(`rooms/${code}/members/${myNick}`).set(true);
+   enterRoom(code);
+ }
+ 
+ function enterRoom(code) {
+   roomCode = code;
+   tmpVote = {};
+   showScreen('room');
+   
+   const url = new URL(window.location.href);
+   url.searchParams.set('room', code);
+   window.history.replaceState({}, '', url);
+   
+   document.getElementById('room-code-display').textContent = code;
+   
+   if (roomListener) db.ref('rooms/' + roomCode).off('value', roomListener);
+@@ -366,50 +370,53 @@ function leaveRoom() {
+   roomCode = ''; roomData = {}; tmpVote = {};
+   const url = new URL(window.location.href);
+   url.searchParams.delete('room');
+   window.history.replaceState({}, '', url);
+   showScreen('home');
+ }
+ 
+ function copyLink() {
+   const url = `${location.origin}${location.pathname}?room=${roomCode}`;
+   navigator.clipboard.writeText(url).then(() => {
+     const btn = document.getElementById('copy-link-btn');
+     btn.textContent = '✅ 복사 완료!';
+     setTimeout(() => { btn.textContent = '🔗 링크 복사'; }, 2000);
+   });
+ }
+ 
+ function goToStep(step) {
+   currentStep = step;
+   document.querySelectorAll('.room-step').forEach((el, idx) => {
+     el.style.display = (idx + 1 === step) ? 'block' : 'none';
+   });
+   document.querySelectorAll('.step-dot').forEach((el, idx) => {
+     el.classList.toggle('active', idx + 1 === step);
+   });
+   renderRoom();
++  if (step === 3) {
++    requestAnimationFrame(() => drawRouletteFromCurrentResults());
++  }
+ }
+ 
+ function renderRoom() {
+   renderMembers();
+   if(currentStep === 1) renderGameList();
+   if(currentStep === 2) renderVoteTab();
+   if(currentStep === 3) renderResultTab();
+ }
+ 
+ function renderMembers() {
+   const members = Object.keys(roomData.members || {});
+   const votes = roomData.votes || {};
+   document.getElementById('member-count').textContent = `(${members.length}명)`;
+   document.getElementById('members-list').innerHTML = members.length ?
+     `<div class="members-wrap">${members.map(n =>
+       `<div class="member-chip ${n===myNick?'me':''} ${votes[n]?'voted':''}">${n===myNick?'👤':'👥'} ${n}${votes[n]?' ✓':''}</div>`
+     ).join('')}</div>` : '<div class="empty">참가자 없음</div>';
+ }
+ 
+ function renderGameList() {
+   const games = roomData.games || [];
+   const el = document.getElementById('game-list');
+   if (!games.length) { el.innerHTML = '<div class="empty">아직 추가된 게임이 없습니다.</div>'; return; }
+   el.innerHTML = games.map((g, i) =>
+     `<div class="game-item no-select" style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border);">
+@@ -473,277 +480,362 @@ function renderVoteTab() {
+ function rateStar(game, score) {
+   if ((roomData.votes || {})[myNick]) return;
+   tmpVote[game] = score;
+   const key = encodeURIComponent(game);
+   document.querySelectorAll(`#vst-${key} .star`).forEach((s, i) => {
+     s.className = 'star';
+     if (i+1 <= score) s.className += i === 0 ? ' s1 sel' : ' sel';
+   });
+   document.querySelector(`#vst-${key}`)?.closest('.vote-game-card').classList.add('rated');
+ }
+ 
+ async function submitVote() {
+   const games = roomData.games || [];
+   const missing = games.filter(g => !tmpVote[g]);
+   if (missing.length) { alert("모든 게임에 점수를 매겨주세요!"); return; }
+   await db.ref(`rooms/${roomCode}/votes/${myNick}`).set({...tmpVote});
+   tmpVote = {};
+ }
+ 
+ async function resetMyVote() {
+   await db.ref(`rooms/${roomCode}/votes/${myNick}`).remove();
+   tmpVote = {};
+ }
+ 
+ /* 🏆 결과 및 알고리즘 연산 (1점 패널티 반영) */
+-function renderResultTab() {
+-  const el = document.getElementById('result-content-area');
++function getResultScores() {
+   const members = Object.keys(roomData.members || {});
+   const votes = roomData.votes || {};
+   const games = roomData.games || [];
+-  
+-  if (!games.length) { el.innerHTML = '<div class="card empty">게임 후보가 없습니다.</div>'; return; }
+-  if (Object.keys(votes).length < members.length || members.length === 0) {
+-    el.innerHTML = `<div class="card empty" style="padding:3rem 1rem;">
+-      <div style="font-size:3rem; margin-bottom:10px;">🔒</div>
+-      <h3 style="margin-bottom:10px;">아직 투표가 끝나지 않았습니다</h3>
+-      <p style="color:var(--muted2); font-size:0.85rem;">모든 인원이 투표를 완료해야 결과가 공개됩니다.<br>(${Object.keys(votes).length} / ${members.length}명 완료)</p>
+-    </div>`;
+-    return;
+-  }
+ 
+-  // 1차 점수 합산
+-  let scores = games.map(g => {
++  const scores = games.map(g => {
+     let sum = 0;
+     let ones = 0;
+     let details = [];
+     members.forEach(m => {
+       const s = votes[m]?.[g] || 0;
+       sum += s;
+       if(s === 1) ones++;
+       details.push(`${m}: ${s}점`);
+     });
+     return { name: g, total: sum, ones: ones, details: details };
+   });
+ 
+-  // 정렬 (1순위: 1점 받은 항목은 강제로 뒤로 배치, 2순위: 총점 높은 순)
+   scores.sort((a,b) => {
+     const aHasOne = a.ones > 0;
+     const bHasOne = b.ones > 0;
+-    if (aHasOne && !bHasOne) return 1;  // a가 1점 있으면 뒤로
+-    if (!aHasOne && bHasOne) return -1; // b가 1점 있으면 뒤로
+-    return b.total - a.total;           // 둘 다 1점이 있거나 없으면 총점 순
++    if (aHasOne && !bHasOne) return 1;
++    if (!aHasOne && bHasOne) return -1;
++    return b.total - a.total;
+   });
+ 
++  return scores;
++}
++
++function getRouletteItems(scores = getResultScores()) {
++  return scores
++    .map(s => ({
++      ...s,
++      // 1점을 받은 후보는 완전 배제 대신 아주 작은 확률만 부여합니다.
++      weight: s.ones > 0 ? Math.max(1, Math.round(s.total * 0.08)) : Math.max(1, s.total)
++    }))
++    .filter(s => s.weight > 0);
++}
++
++function drawRouletteFromCurrentResults() {
++  const canvas = document.getElementById('rouletteCanvas');
++  if (!canvas) return;
++  initRouletteCanvas(getRouletteItems());
++}
++
++function renderResultTab() {
++  const el = document.getElementById('result-content-area');
++  const members = Object.keys(roomData.members || {});
++  const votes = roomData.votes || {};
++  const games = roomData.games || [];
++  const rouletteResult = roomData.rouletteResult;
++  const hasRouletteResult = !!rouletteResult?.winner;
++  
++  if (!games.length) { el.innerHTML = '<div class="card empty">게임 후보가 없습니다.</div>'; return; }
++  if (Object.keys(votes).length < members.length || members.length === 0) {
++    el.innerHTML = `<div class="card empty" style="padding:3rem 1rem;">
++      <div style="font-size:3rem; margin-bottom:10px;">🔒</div>
++      <h3 style="margin-bottom:10px;">아직 투표가 끝나지 않았습니다</h3>
++      <p style="color:var(--muted2); font-size:0.85rem;">모든 인원이 투표를 완료해야 결과가 공개됩니다.<br>(${Object.keys(votes).length} / ${members.length}명 완료)</p>
++    </div>`;
++    return;
++  }
++
++  const scores = getResultScores();
++  const rouletteItems = getRouletteItems(scores);
+   const isRouletteMode = roomData.settings?.mode === 'roulette';
++  const shouldShowRoulette = isRouletteMode || isSpinning || hasRouletteResult;
+   const winner = scores[0];
+   const second = scores[1];
+   const third = scores[2];
+ 
+-  // 1위/2위/3위 스케치 전광판 렌더링
+   let html = `<div class="top-winners-area no-select">`;
+   
+-  if (isRouletteMode) {
++  if (hasRouletteResult) {
++    html += `<div class="winner-box-1st" style="border-color:var(--accent3);">
++      <span class="crown-icon">🎡</span>
++      <h2>${rouletteResult.winner}</h2>
++      <p>룰렛으로 최종 선정!</p>
++    </div>`;
++  } else if (isRouletteMode) {
+     html += `<div class="winner-box-1st" style="border-color:var(--accent3);">
+       <span class="crown-icon">🎡</span>
+       <h2 style="color:var(--accent3);">룰렛 대기중</h2>
+       <p style="color:var(--muted2);">아래 룰렛을 돌려 최종 게임을 정합니다</p>
+     </div>`;
+   } else {
+     html += `<div class="winner-box-1st">
+       <span class="crown-icon">👑</span>
+       <h2>${winner.name}</h2>
+       <p>${winner.total}점 • 투표로 최종 선정!</p>
+     </div>`;
+     
+     if (second || third) {
+       html += `<div class="sub-winners-row">`;
+       if (second) {
+         html += `<div class="winner-box-sub">
+           <span style="font-size:1.2rem; display:block;">🥈</span>
+           <h4>${second.name}</h4>
+           <p>${second.total}점 ${second.ones > 0 ? '(⚠️1점)' : ''}</p>
+         </div>`;
+       }
+       if (third) {
+         html += `<div class="winner-box-sub">
+           <span style="font-size:1.2rem; display:block;">🥉</span>
+           <h4>${third.name}</h4>
+           <p>${third.total}점 ${third.ones > 0 ? '(⚠️1점)' : ''}</p>
+         </div>`;
+       }
+       html += `</div>`;
+     }
+   }
+   html += `</div>`;
+ 
+-  // 세부 순위표 (1점 패널티 이유 표시)
+   html += `<div class="card no-select"><h4 style="margin-bottom:12px;">📊 세부 득표 현황</h4>`;
+-  
+-  // 최고 점수 찾기 (순수 득표 기준)
+   const maxActualScore = Math.max(...scores.map(s => s.total));
+ 
+   scores.forEach((s, idx) => {
+     let badge = '';
+-    if (idx === 0 && !isRouletteMode) badge = '<span class="badge badge-win">🏆 최종 1위</span>';
++    if (idx === 0 && !isRouletteMode && !hasRouletteResult) badge = '<span class="badge badge-win">🏆 최종 1위</span>';
+     else if (s.ones > 0) {
+       if (s.total === maxActualScore) {
+         badge = `<span class="badge badge-elim">⚠️ 최다 점수이나 1점 반대로 1위 불가</span>`;
+       } else {
+         badge = `<span class="badge badge-warn">⚠️ 1점 ${s.ones}명</span>`;
+       }
+     }
++    const rouletteWeight = rouletteItems.find(item => item.name === s.name)?.weight || 0;
+     
+-    html += `<div class="result-card ${idx===0 && !isRouletteMode ? 'winner' : ''} ${s.ones > 0 ? 'elim' : ''}">
++    html += `<div class="result-card ${idx===0 && !isRouletteMode && !hasRouletteResult ? 'winner' : ''} ${s.ones > 0 ? 'elim' : ''}">
+       <div class="result-top">
+         <span class="result-gname">${idx+1}. ${s.name}</span>
+         <div style="display:flex; align-items:center; gap:8px;">${badge}<span class="result-pts">${s.total}점</span></div>
+       </div>
+-      <div class="voter-scores" style="margin-top:5px;">${s.details.map(d=>`<span class="vs-chip">${d}</span>`).join('')}</div>
++      <div class="voter-scores" style="margin-top:5px;">${s.details.map(d=>`<span class="vs-chip">${d}</span>`).join('')}<span class="vs-chip">룰렛 가중치: ${rouletteWeight}</span></div>
+     </div>`;
+   });
+   html += `</div>`;
+ 
+-  // 룰렛 영역
+-  html += `<div class="card no-select" id="roulette-box" style="display:${isRouletteMode || isSpinning ? 'block' : 'none'};">
++  html += `<div class="card no-select" id="roulette-box" style="display:${shouldShowRoulette ? 'block' : 'none'};">
+     <h4 style="text-align:center; margin-bottom:5px;">🎡 점수 비례 룰렛</h4>
+-    <p style="font-size:0.8rem; color:var(--muted2); text-align:center;">획득 점수가 높을수록 당첨 칸이 넓어집니다</p>
++    <p style="font-size:0.8rem; color:var(--muted2); text-align:center;">획득 점수가 높을수록 당첨 칸이 넓어지고, 1점을 받은 후보는 아주 작은 확률만 가집니다</p>
+     <div class="roulette-container">
+       <div class="roulette-arrow"></div>
+       <canvas id="rouletteCanvas" width="280" height="280"></canvas>
+     </div>
+   </div>`;
+ 
+-  if (!isRouletteMode) {
++  if (hasRouletteResult) {
++    html += `<button class="btn btn-accent2 btn-full big" onclick="openAgreeModal()">🔄 초기화 및 재시도 (전원 동의)</button>`;
++  } else if (!isRouletteMode) {
+     html += `<button class="btn btn-accent2 btn-full big" onclick="openAgreeModal()">🎡 결과가 아쉽다면? 룰렛 돌리기 (전원 동의)</button>`;
+   } else {
+     html += `<button class="btn btn-primary btn-full big" id="btn-spin-direct" onclick="openAgreeModal()">룰렛 돌리기 (전원 동의 필요)</button>`;
+   }
+ 
+   el.innerHTML = html;
+-  if (isRouletteMode || document.getElementById('roulette-box').style.display === 'block') {
+-    initRouletteCanvas(scores);
+-  }
++  requestAnimationFrame(() => drawRouletteFromCurrentResults());
+ }
+ 
+ /* 🎡 자동 프로세스 및 동의 로직 완벽 연동 */
++function getRouletteAgreements() {
++  return roomData.rouletteAgreements || roomData.rouletteAgree || {};
++}
++
+ function checkProcess() {
+   const members = Object.keys(roomData.members || {});
+   const votes = Object.keys(roomData.votes || {});
+   
+   // 1. 모두 투표 시 자동으로 3단계(결과) 이동
+   if (members.length > 0 && members.length === votes.length && currentStep === 2) {
+     goToStep(3);
+   }
+ 
+-  // 2. 룰렛 실시간 동의 체크
+-  const agrees = Object.keys(roomData.rouletteAgree || {});
++  // 2. 진행 중인 룰렛이 있으면 결과 탭을 렌더링한 뒤 모든 참가자에게 같은 각도로 실행
++  if (roomData.rouletteSpin?.id && activeSpinId !== roomData.rouletteSpin.id) {
++    if (currentStep !== 3) goToStep(3);
++    requestAnimationFrame(() => startRouletteEngine(roomData.rouletteSpin));
++  }
++
++  // 3. 룰렛 실시간 동의 체크
++  const agrees = Object.keys(getRouletteAgreements());
+   const modal = document.getElementById('agree-modal');
+   const statusText = document.getElementById('agree-status-text');
+ 
+-  if (agrees.length > 0) {
++  if (agrees.length > 0 && !roomData.rouletteSpin) {
+     if (modal.style.display !== 'flex') modal.style.display = 'flex';
+     statusText.textContent = `현재 동의 인원: ${agrees.length} / ${members.length}명`;
+     
+-    // 만약 전원 동의 달성 시 -> 모달 닫고 즉시 룰렛 스타트!
+-    if (agrees.length === members.length && !isSpinning) {
++    // 전원 동의 달성 시 한 명만 공용 spin 상태를 생성하고, 모두 같은 결과를 봅니다.
++    if (agrees.length === members.length && members.length > 0 && !isSpinning) {
+       modal.style.display = 'none';
+-      startRouletteEngine();
++      createRouletteSpin();
+     }
+-  } else {
++  } else if (!roomData.rouletteSpin) {
+     modal.style.display = 'none';
+   }
+ }
+ 
+ function openAgreeModal() {
+-  db.ref(`rooms/${roomCode}/rouletteAgree/${myNick}`).set(true);
++  const updates = {
++    [`rooms/${roomCode}/rouletteAgreements/${myNick}`]: true,
++    [`rooms/${roomCode}/rouletteAgree`]: null,
++    [`rooms/${roomCode}/rouletteResult`]: null
++  };
++  db.ref().update(updates);
+ }
+ 
+ function sendAgree() {
+-  db.ref(`rooms/${roomCode}/rouletteAgree/${myNick}`).set(true);
++  db.ref(`rooms/${roomCode}/rouletteAgreements/${myNick}`).set(true);
+ }
+ 
+ function cancelAgreeModal() {
+   // 나를 포함하여 동의 데이터 모두 초기화 (취소)
+-  db.ref(`rooms/${roomCode}/rouletteAgree`).remove();
++  db.ref().update({
++    [`rooms/${roomCode}/rouletteAgreements`]: null,
++    [`rooms/${roomCode}/rouletteAgree`]: null
++  });
+   document.getElementById('agree-modal').style.display = 'none';
+ }
+ 
++function createRouletteSpin() {
++  const spinRef = db.ref(`rooms/${roomCode}/rouletteSpin`);
++  spinRef.transaction(current => {
++    if (current) return;
++    return {
++      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
++      spinDeg: Math.floor(3600 + Math.random() * 3600),
++      startedAt: firebase.database.ServerValue.TIMESTAMP,
++      by: myNick
++    };
++  });
++}
++
+ /* 🎨 룰렛 물리 엔진 */
+ let currentRouletteItems = [];
+-function initRouletteCanvas(scores) {
+-  currentRouletteItems = scores;
++function initRouletteCanvas(items) {
++  currentRouletteItems = items && items.length ? items : getRouletteItems();
+   const canvas = document.getElementById('rouletteCanvas');
+-  if(!canvas) return;
++  if(!canvas || !currentRouletteItems.length) return;
+   const ctx = canvas.getContext('2d');
+-  const totalScore = scores.reduce((a,b) => a + b.total, 0);
++  const totalWeight = currentRouletteItems.reduce((a,b) => a + b.weight, 0);
+   let startAngle = 0;
+ 
++  canvas.style.transform = 'rotate(0deg)';
+   ctx.clearRect(0, 0, 280, 280);
+-  scores.forEach((s, idx) => {
+-    const sliceAngle = (s.total / totalScore) * 2 * Math.PI;
++  currentRouletteItems.forEach((s, idx) => {
++    const sliceAngle = (s.weight / totalWeight) * 2 * Math.PI;
+     ctx.beginPath();
+-    ctx.fillStyle = `hsl(${idx * (360 / scores.length)}, 65%, 55%)`;
++    ctx.fillStyle = `hsl(${idx * (360 / currentRouletteItems.length)}, 65%, 55%)`;
+     ctx.moveTo(140, 140);
+     ctx.arc(140, 140, 135, startAngle, startAngle + sliceAngle);
+     ctx.fill();
+     ctx.lineWidth = 2;
+     ctx.strokeStyle = "#1e1e28";
+     ctx.stroke();
+     
+     // 텍스트
+     ctx.save();
+     ctx.translate(140, 140);
+     ctx.rotate(startAngle + sliceAngle / 2);
+     ctx.fillStyle = "#fff";
+     ctx.font = "bold 13px Noto Sans KR";
+     ctx.fillText(s.name.substring(0, 7), 65, 5);
+     ctx.restore();
+     
+     startAngle += sliceAngle;
+   });
+ }
+ 
+-function startRouletteEngine() {
+-  if (isSpinning) return;
++function pickRouletteWinner(spinDeg, items = currentRouletteItems) {
++  const totalWeight = items.reduce((a,b) => a + b.weight, 0);
++  const actualDeg = spinDeg % 360;
++  const winningAngleDeg = (360 - actualDeg + 270) % 360;
++  let cumulativeDeg = 0;
++  let winnerName = items[0]?.name || '';
++  
++  for(let s of items) {
++    const sliceDeg = (s.weight / totalWeight) * 360;
++    cumulativeDeg += sliceDeg;
++    if (winningAngleDeg <= cumulativeDeg) {
++      winnerName = s.name;
++      break;
++    }
++  }
++  return winnerName;
++}
++
++function startRouletteEngine(spinState) {
++  if (isSpinning || !spinState?.id) return;
+   isSpinning = true;
++  activeSpinId = spinState.id;
++  document.getElementById('agree-modal').style.display = 'none';
+   
+   const box = document.getElementById('roulette-box');
+   if(box) box.style.display = 'block';
++  drawRouletteFromCurrentResults();
+   
+   const canvas = document.getElementById('rouletteCanvas');
+-  const spinDeg = Math.floor(3600 + Math.random() * 3600); // 10바퀴 이상 회전
+-  canvas.style.transform = `rotate(${spinDeg}deg)`;
++  if (!canvas) {
++    isSpinning = false;
++    activeSpinId = null;
++    return;
++  }
++
++  const spinDeg = spinState.spinDeg;
++  requestAnimationFrame(() => {
++    canvas.style.transform = `rotate(${spinDeg}deg)`;
++  });
+ 
+   setTimeout(() => {
+-    // 화살표(270도 위치) 기준 최종 당첨자 연산
+-    const totalScore = currentRouletteItems.reduce((a,b) => a + b.total, 0);
+-    const actualDeg = spinDeg % 360;
+-    const winningAngleDeg = (360 - actualDeg + 270) % 360;
+-    
+-    let cumulativeDeg = 0;
+-    let winnerName = currentRouletteItems[0].name;
+-    
+-    for(let s of currentRouletteItems) {
+-      const sliceDeg = (s.total / totalScore) * 360;
+-      cumulativeDeg += sliceDeg;
+-      if (winningAngleDeg <= cumulativeDeg) {
+-        winnerName = s.name;
+-        break;
+-      }
+-    }
+-    
++    const items = currentRouletteItems.length ? currentRouletteItems : getRouletteItems();
++    const winnerName = pickRouletteWinner(spinDeg, items);
+     document.getElementById('modal-game-name').textContent = winnerName;
+     document.getElementById('result-modal').style.display = 'flex';
+     
+-    // 룰렛 상태 초기화
+-    db.ref(`rooms/${roomCode}/rouletteAgree`).remove();
++    // 룰렛 결과는 DB에 저장하고, 동의/스핀 상태는 비워서 재시도를 계속 받을 수 있게 합니다.
++    db.ref().update({
++      [`rooms/${roomCode}/rouletteResult`]: {
++        winner: winnerName,
++        spinId: spinState.id,
++        decidedAt: firebase.database.ServerValue.TIMESTAMP,
++        items: items.map(({name, total, ones, weight}) => ({name, total, ones, weight}))
++      },
++      [`rooms/${roomCode}/rouletteSpin`]: null,
++      [`rooms/${roomCode}/rouletteAgreements`]: null,
++      [`rooms/${roomCode}/rouletteAgree`]: null
++    });
+     isSpinning = false;
+   }, 6200);
+ }
+ 
+ function closeModal() {
+   document.getElementById('result-modal').style.display = 'none';
+ }
+ </script>
+ </body>
+ </html>
+ 
+EOF
+)
