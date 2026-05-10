@@ -1,73 +1,76 @@
 <div class="screen" id="screen-home">
   <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
   <div id="home-my-nick"></div>
-  <div style="text-align:center; margin-top:2rem; font-size:0.7rem; color:var(--muted);">v1.7 updated</div>
+  <div class="home-actions">
+    </div>
+  <div style="text-align:center; margin-top:2rem; font-size:0.7rem; color:var(--muted);">v1.7</div>
 </div>
 
 <div id="rtab-content-result" style="display:none">
-  <div id="result-list"></div>
-  
-  <div id="roulette-section" style="margin-top:2rem; text-align:center; display:none;">
-    <h3 class="sec-label">🎡 점수 비례 룰렛</h3>
-    <canvas id="roulette-canvas" width="300" height="300" style="margin:1rem auto; display:block;"></canvas>
-    <button id="spin-btn" class="btn btn-accent2 btn-full" onclick="startSpin()">룰렛 돌리기!</button>
-    
-    <div style="margin-top:1.5rem;">
-      <p class="sec-hint">결과가 마음에 안 드시나요?</p>
-      <button class="btn btn-ghost btn-full" onclick="resetAllVotes()">전체 투표 초기화 및 다시 하기</button>
+    <div id="result-display-area"></div>
+    <div id="roulette-section" style="margin-top:20px; display:none;">
+        <div class="card" style="text-align:center;">
+            <p class="sec-label">🎡 점수 비례 룰렛</p>
+            <canvas id="roulette-canvas" width="300" height="300" style="max-width:100%;"></canvas>
+            <div id="roulette-btn-container" style="margin-top:15px;"></div>
+        </div>
     </div>
-  </div>
 </div>
 
 <script>
-// 1. 버전 관리 및 룰렛 상태 변수
+// ... 기존 초기화 코드 ...
 const VERSION = "1.7";
 
-// 2. 룰렛 초기화 함수 (탭 전환 시 즉시 실행되도록 보정)
-function initRoulette() {
-    const section = document.getElementById('roulette-section');
-    if (!checkAllVoted()) {
-        section.style.display = 'none';
-        return;
-    }
-    
-    section.style.display = 'block';
-    const canvas = document.getElementById('roulette-canvas');
-    if (canvas) {
-        drawRoulette(0); // 0도 정지 상태로 즉시 그리기
-    }
+// 1. 룰렛이 안 보이는 문제 해결을 위한 탭 전환 로직 수정
+function switchRoomTab(tab) {
+  ['games','vote','result'].forEach(t => {
+    document.getElementById('rtab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('rtab-content-'+t).style.display = t===tab?'block':'none';
+  });
+  
+  if (tab==='vote') renderVoteTab();
+  if (tab==='result') {
+    renderResultTab();
+    // 탭 클릭 시 즉시 룰렛 관련 데이터 확인 및 렌더링
+    setTimeout(() => { checkAndRenderRoulette(); }, 50); 
+  }
 }
 
-// 3. 전체 투표 초기화 (재투표 기능)
-async function resetAllVotes() {
-    if (!confirm("모든 참가자의 투표 데이터를 초기화하고 다시 시작할까요?")) return;
-    
-    // 데이터베이스의 votes와 games(선택사항)를 초기화하거나 유지한 채 투표값만 삭제
-    await db.ref(`rooms/${roomCode}/votes`).remove();
-    alert("투표가 초기화되었습니다. 다시 투표해주세요!");
-    switchRoomTab('vote');
+// 2. 룰렛을 돌린 후 다시 할 수 있도록 하는 초기화 함수
+async function resetRouletteForRetry() {
+  if(!confirm("다시 돌리기 위해 현재 룰렛 결과를 초기화할까요? (전원 동의 필요 시스템 적용 시 동의 데이터가 초기화됩니다)")) return;
+  
+  await db.ref(`rooms/${roomCode}/rouletteResult`).remove();
+  await db.ref(`rooms/${roomCode}/rouletteAgreements`).remove();
+  
+  alert("룰렛이 초기화되었습니다. 다시 동의를 진행해주세요.");
+  renderResultTab();
 }
 
-// 4. 렌더링 로직에 반영
+// 3. 결과 화면 렌더링 시 룰렛 관련 버튼 로직 (반복 가능하도록)
 function renderResultTab() {
-    const el = document.getElementById('result-list');
-    const allVoted = checkAllVoted();
-    
-    if (!allVoted) {
-        // ... 미완료 메시지 ...
-        document.getElementById('roulette-section').style.display = 'none';
-        return;
+  const el = document.getElementById('result-list');
+  // ... (기존 결과 계산 로직) ...
+
+  // 룰렛 결과가 이미 있다면 '다시 하기' 버튼을 보여줌
+  if (roomData.rouletteResult) {
+      const retryBtn = `<button class="btn btn-accent2 btn-full" onclick="resetRouletteForRetry()" style="margin-top:10px;">🎡 결과가 아쉽다면? 다시 돌리기 (동의 초기화)</button>`;
+      // 결과 하단에 추가
+      el.insertAdjacentHTML('beforeend', retryBtn);
+  }
+}
+
+// 4. 룰렛 캔버스 렌더링 및 가시성 확보
+function checkAndRenderRoulette() {
+    const rouletteArea = document.getElementById('roulette-section');
+    if (checkAllVoted()) {
+        rouletteArea.style.display = 'block';
+        drawRoulette(); // 캔버스 그리기 함수 호출
+    } else {
+        rouletteArea.style.display = 'none';
     }
-
-    // 결과 리스트 렌더링 후 룰렛 초기화 호출
-    renderResultList(el); 
-    setTimeout(initRoulette, 50); // DOM 렌더링 후 안정적으로 호출
 }
 
-// 5. 룰렛 그리기 로직 (Canvas API 활용)
-function drawRoulette(angle) {
-    const canvas = document.getElementById('roulette-canvas');
-    const ctx = canvas.getContext('2d');
-    // ... (점수 비례 데이터 계산 및 그리기 로직) ...
-}
+// 페이지 로드 시 버전 콘솔 출력 (디버깅용)
+console.log(`Game Vote Version: ${VERSION}`);
 </script>
