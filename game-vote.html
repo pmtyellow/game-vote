@@ -7,520 +7,562 @@
 <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0f0f13;
-  --surface: #1a1a22;
-  --surface2: #22222e;
-  --border: rgba(255,255,255,0.08);
-  --accent: #7c6ff7;
-  --accent2: #f7a06f;
-  --accent3: #6ff7b8;
-  --text: #f0f0f8;
-  --muted: rgba(240,240,248,0.45);
-  --danger: #f76f6f;
-  --warn: #f7d06f;
+  --bg: #0c0c10;
+  --surface: #16161e;
+  --surface2: #1e1e28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --accent: #818cf8;
+  --accent2: #fb923c;
+  --accent3: #34d399;
+  --danger: #f87171;
+  --warn: #fbbf24;
+  --text: #e8e8f0;
+  --muted: rgba(232,232,240,0.4);
+  --muted2: rgba(232,232,240,0.6);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Noto Sans KR', sans-serif;
-  min-height: 100vh;
-}
-.noise {
-  position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-}
-.glow {
-  position: fixed; width: 600px; height: 600px;
-  border-radius: 50%; filter: blur(120px); pointer-events: none; z-index: 0;
-  background: radial-gradient(circle, rgba(124,111,247,0.12) 0%, transparent 70%);
-  top: -200px; left: -100px;
-}
-.glow2 {
-  position: fixed; width: 400px; height: 400px;
-  border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0;
-  background: radial-gradient(circle, rgba(247,160,111,0.08) 0%, transparent 70%);
-  bottom: -100px; right: -100px;
-}
-.wrap { position: relative; z-index: 1; max-width: 660px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-
-/* Header */
-.header { text-align: center; margin-bottom: 2.5rem; }
-.header h1 {
-  font-family: 'Gmarket Sans', sans-serif;
-  font-size: 2rem; font-weight: 700; letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #fff 30%, var(--accent));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  margin-bottom: 0.4rem;
-}
-.header p { color: var(--muted); font-size: 0.9rem; }
-
-/* Firebase config banner */
-#config-banner {
-  background: rgba(247,160,111,0.1);
-  border: 1px solid rgba(247,160,111,0.3);
-  border-radius: 14px; padding: 1.25rem 1.5rem;
-  margin-bottom: 1.5rem;
-}
-#config-banner h3 { font-size: 0.95rem; font-weight: 700; color: var(--accent2); margin-bottom: 0.75rem; }
-#config-banner p { font-size: 0.82rem; color: var(--muted); line-height: 1.7; margin-bottom: 0.75rem; }
-#config-banner ol { font-size: 0.82rem; color: var(--muted); line-height: 2; padding-left: 1.2rem; margin-bottom: 1rem; }
-#config-banner ol li b { color: var(--text); }
-.config-inputs { display: flex; flex-direction: column; gap: 8px; }
-.config-inputs input {
-  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-  border-radius: 8px; padding: 8px 12px; font-size: 0.82rem;
-  color: var(--text); font-family: monospace; width: 100%;
-}
-.config-inputs input::placeholder { color: var(--muted); }
-.config-inputs input:focus { outline: none; border-color: var(--accent2); }
-#connect-btn {
-  margin-top: 10px; width: 100%; padding: 10px;
-  background: var(--accent2); color: #1a0e00; font-weight: 700;
-  border: none; border-radius: 8px; cursor: pointer; font-size: 0.9rem;
-  font-family: 'Noto Sans KR', sans-serif;
-}
-#connect-btn:hover { opacity: 0.9; }
-.conn-ok { display: none; text-align: center; font-size: 0.85rem; color: var(--accent3); padding: 0.5rem; }
-
-/* Tabs */
-.tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; background: var(--surface); border-radius: 12px; padding: 5px; }
-.tab {
-  flex: 1; padding: 9px 4px; border: none; border-radius: 8px;
-  background: transparent; color: var(--muted); font-size: 0.85rem;
-  cursor: pointer; transition: all 0.2s; font-family: 'Noto Sans KR', sans-serif;
-  font-weight: 500;
-}
-.tab.active { background: var(--surface2); color: var(--text); }
-
-/* Cards */
-.card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 10px;
-  transition: border-color 0.2s;
-}
-.card:hover { border-color: rgba(255,255,255,0.14); }
-
-/* Input row */
-.input-row { display: flex; gap: 8px; margin-bottom: 1rem; }
-.input-row input, input[type=text] {
-  flex: 1; background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px 14px; color: var(--text);
-  font-size: 0.9rem; font-family: 'Noto Sans KR', sans-serif;
-}
-.input-row input:focus, input[type=text]:focus { outline: none; border-color: var(--accent); }
-.input-row input::placeholder { color: var(--muted); }
-.btn {
-  padding: 10px 18px; border-radius: 10px; border: none; cursor: pointer;
-  font-weight: 700; font-size: 0.85rem; font-family: 'Noto Sans KR', sans-serif;
-  transition: all 0.15s;
-}
+body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; }
+.bg-orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+.orb1 { width: 500px; height: 500px; top: -150px; left: -100px; background: radial-gradient(circle, rgba(129,140,248,0.1), transparent 70%); }
+.orb2 { width: 400px; height: 400px; bottom: -100px; right: -50px; background: radial-gradient(circle, rgba(251,146,60,0.07), transparent 70%); }
+.wrap { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; padding: 2rem 1.25rem 5rem; }
+.screen { display: none; animation: fadeIn 0.3s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+.logo { text-align: center; margin-bottom: 2.5rem; }
+.logo h1 { font-family: 'Gmarket Sans', sans-serif; font-size: 2rem; font-weight: 700; background: linear-gradient(135deg, #fff 20%, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.3rem; }
+.logo p { color: var(--muted2); font-size: 0.88rem; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-bottom: 12px; }
+.card-title { font-family: 'Gmarket Sans', sans-serif; font-size: 0.9rem; font-weight: 500; margin-bottom: 1rem; color: var(--muted2); letter-spacing: 0.02em; }
+input[type=text], select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; color: var(--text); font-size: 0.95rem; font-family: 'Noto Sans KR', sans-serif; transition: border-color 0.15s; }
+input[type=text]:focus, select:focus { outline: none; border-color: var(--accent); }
+input[type=text]::placeholder { color: var(--muted); }
+.input-row { display: flex; gap: 8px; }
+.input-row input { flex: 1; }
+.btn { padding: 11px 20px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; font-size: 0.88rem; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; white-space: nowrap; }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
-.btn-danger { background: rgba(247,111,111,0.15); color: var(--danger); border: 1px solid rgba(247,111,111,0.2); padding: 6px 10px; border-radius: 8px; }
-.btn-danger:hover { background: rgba(247,111,111,0.25); }
-.btn-full { width: 100%; padding: 13px; font-size: 1rem; margin-top: 1rem; background: var(--accent); color: #fff; border-radius: 12px; }
-.btn-full:hover { opacity: 0.85; transform: translateY(-1px); }
+.btn-accent2 { background: var(--accent2); color: #1a0800; }
+.btn-accent2:hover { opacity: 0.85; }
+.btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-danger-soft { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); color: var(--danger); padding: 6px 10px; border-radius: 8px; font-size: 0.82rem; }
+.btn-full { width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; margin-top: 0.75rem; }
+.btn-full.big { padding: 16px; font-size: 1.05rem; }
 
-/* Section label */
-.sec-label { font-family: 'Gmarket Sans', sans-serif; font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem; }
-.sec-hint { font-size: 0.8rem; color: var(--muted); margin-bottom: 1rem; }
+/* Room code */
+.room-code-display { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.room-code-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
+.room-code-val { font-family: 'Gmarket Sans', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: 0.15em; color: var(--accent); }
+.copy-btn { background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.2); border-radius: 10px; padding: 7px 13px; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; }
+.copy-btn:hover { background: rgba(129,140,248,0.22); }
+.copy-btn.copied { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.25); color: var(--accent3); }
 
-/* Game item */
-.game-item { display: flex; align-items: center; gap: 10px; }
-.game-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-.game-name-text { flex: 1; font-size: 0.95rem; font-weight: 500; }
+/* Members */
+.members-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 0.5rem; }
+.member-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 0.82rem; }
+.member-chip.me { border-color: rgba(129,140,248,0.3); color: var(--accent); }
+.member-chip.voted { border-color: rgba(52,211,153,0.3); color: var(--accent3); }
 
-/* Voter tags */
-.voter-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 1rem; }
-.vtag {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 20px; padding: 5px 12px; font-size: 0.82rem;
-  display: flex; align-items: center; gap: 6px;
-}
-.vtag .xbtn { cursor: pointer; color: var(--muted); font-size: 14px; line-height: 1; }
-.vtag .xbtn:hover { color: var(--danger); }
-.vtag.done { border-color: rgba(111,247,184,0.3); color: var(--accent3); }
+/* Game list */
+.game-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.game-item:last-child { border-bottom: none; padding-bottom: 0; }
+.game-item:first-child { padding-top: 0; }
+.game-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.game-name-text { flex: 1; font-size: 0.95rem; }
 
-/* Vote form */
-.vote-select-wrap { margin-bottom: 1.25rem; }
-.vote-select-wrap select {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 10px; padding: 10px 14px; color: var(--text);
-  font-size: 0.9rem; font-family: 'Noto Sans KR', sans-serif; width: 100%;
-}
-.vote-select-wrap select:focus { outline: none; border-color: var(--accent); }
-
-/* Rating stars */
-.rating-row { display: flex; align-items: center; gap: 12px; }
-.rating-game { flex: 1; font-size: 0.92rem; font-weight: 500; }
-.stars { display: flex; gap: 5px; }
-.star {
-  width: 32px; height: 32px; border-radius: 8px;
-  border: 1px solid var(--border); background: var(--surface2);
-  color: var(--muted); cursor: pointer; font-size: 0.8rem; font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.12s;
-}
-.star:hover { border-color: var(--accent); color: var(--accent); }
-.star.sel { background: rgba(124,111,247,0.2); border-color: var(--accent); color: var(--accent); }
-.star.s1 { background: rgba(247,111,111,0.15); border-color: rgba(247,111,111,0.4); color: var(--danger); }
-
-/* Vote status */
-.vote-status { margin-top: 1rem; font-size: 0.82rem; color: var(--muted); text-align: center; }
-.prog-wrap { height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 6px; }
-.prog-bar { height: 100%; border-radius: 2px; background: var(--accent3); transition: width 0.4s; }
+/* Stars */
+.vote-game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 10px; transition: border-color 0.2s; }
+.vote-game-card.rated { border-color: rgba(129,140,248,0.3); }
+.vote-game-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
+.stars { display: flex; gap: 6px; }
+.star { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.12s; font-family: 'Noto Sans KR', sans-serif; }
+.star:hover { border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.08); }
+.star.sel { background: rgba(129,140,248,0.2); border-color: var(--accent); color: var(--accent); }
+.star.s1 { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.35); color: var(--danger); }
+.star.s1.sel { background: rgba(248,113,113,0.25); }
 
 /* Results */
-.result-item {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 1.25rem 1.5rem; margin-bottom: 10px;
-  transition: all 0.3s;
-}
-.result-item.winner { border-color: rgba(124,111,247,0.5); background: rgba(124,111,247,0.07); }
-.result-item.elim { opacity: 0.45; border-color: rgba(247,111,111,0.2); }
+.result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 10px; }
+.result-card.winner { border-color: rgba(129,140,248,0.4); background: rgba(129,140,248,0.06); }
+.result-card.elim { opacity: 0.45; border-color: rgba(248,113,113,0.2); }
 .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.result-gname { font-size: 1rem; font-weight: 700; }
-.result-right { display: flex; align-items: center; gap: 10px; }
-.result-pts { font-size: 1.4rem; font-weight: 700; font-family: 'Gmarket Sans', sans-serif; }
+.result-gname { font-size: 0.95rem; font-weight: 700; }
+.result-pts { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; font-weight: 700; }
 .result-pts.winner { color: var(--accent); }
 .result-pts.elim { color: var(--danger); }
-.badge {
-  font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
-  border-radius: 20px;
-}
-.badge-win { background: rgba(124,111,247,0.2); color: var(--accent); border: 1px solid rgba(124,111,247,0.3); }
-.badge-elim { background: rgba(247,111,111,0.15); color: var(--danger); border: 1px solid rgba(247,111,111,0.2); }
-.badge-warn { background: rgba(247,208,111,0.15); color: var(--warn); border: 1px solid rgba(247,208,111,0.2); }
+.badge { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
+.badge-win { background: rgba(129,140,248,0.2); color: var(--accent); border: 1px solid rgba(129,140,248,0.3); }
+.badge-elim { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
+.badge-warn { background: rgba(251,191,36,0.15); color: var(--warn); border: 1px solid rgba(251,191,36,0.2); }
 .bar-track { height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
 .bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
 .bar-fill.elim { background: var(--danger); }
 .voter-scores { display: flex; flex-wrap: wrap; gap: 6px; }
-.vs-chip {
-  font-size: 0.75rem; padding: 2px 10px; border-radius: 20px;
-  background: var(--surface2); border: 1px solid var(--border); color: var(--muted);
-}
+.vs-chip { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
 
-/* Empty */
-.empty { text-align: center; color: var(--muted); padding: 2.5rem 1rem; font-size: 0.88rem; }
+/* Tabs */
+.tabs { display: flex; gap: 5px; background: var(--surface); border-radius: 14px; padding: 5px; margin-bottom: 1.25rem; }
+.tab { flex: 1; padding: 9px 4px; border: none; border-radius: 10px; background: transparent; color: var(--muted2); font-size: 0.82rem; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; transition: all 0.2s; }
+.tab.active { background: var(--surface2); color: var(--text); }
 
-/* Realtime indicator */
-.rt-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent3); margin-right: 6px; animation: pulse 2s infinite; }
+/* Misc */
+.my-nick { display: inline-flex; align-items: center; gap: 6px; background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.25); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: var(--accent); margin-bottom: 1.25rem; }
+.timer-badge { font-size: 0.78rem; color: var(--muted2); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 3px 10px; }
+.timer-badge.soon { color: var(--warn); border-color: rgba(251,191,36,0.3); }
+.home-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.action-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem 1.25rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+.action-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+.action-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
+.action-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
+.action-card p { font-size: 0.78rem; color: var(--muted2); }
+.join-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-top: 12px; }
+.sec-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; margin-bottom: 0.6rem; }
+.sec-hint { font-size: 0.82rem; color: var(--muted2); margin-bottom: 0.75rem; }
+.empty { text-align: center; color: var(--muted); padding: 1.5rem; font-size: 0.85rem; }
+.big-emoji { font-size: 3.5rem; text-align: center; margin-bottom: 1rem; }
+.nick-title { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; text-align: center; margin-bottom: 0.4rem; }
+.nick-sub { text-align: center; color: var(--muted2); font-size: 0.88rem; margin-bottom: 2rem; }
+.nick-wrap { max-width: 380px; margin: 0 auto; }
+.pending-result { text-align: center; padding: 3rem 1rem; }
+.pending-result .icon { font-size: 3rem; margin-bottom: 1rem; }
+.pending-result h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
+.pending-result p { font-size: 0.88rem; color: var(--muted2); line-height: 1.7; }
+.prog-wrap { height: 5px; background: var(--surface2); border-radius: 3px; margin-top: 8px; }
+.prog-bar { height: 100%; border-radius: 3px; background: var(--accent3); transition: width 0.4s; }
+.rt-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); margin-right: 6px; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.rt-label { font-size: 0.78rem; color: var(--accent3); display: flex; align-items: center; }
-
-.section { margin-bottom: 2rem; }
 </style>
 </head>
 <body>
-<div class="noise"></div>
-<div class="glow"></div>
-<div class="glow2"></div>
+<div class="bg-orb orb1"></div>
+<div class="bg-orb orb2"></div>
 <div class="wrap">
 
-  <div class="header">
-    <h1>🎮 게임 투표</h1>
-    <p>오늘 뭐 할지 같이 정해요</p>
+<!-- ══ NICKNAME ══ -->
+<div class="screen active" id="screen-nick">
+  <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
+  <div class="nick-wrap">
+    <div class="big-emoji">👾</div>
+    <p class="nick-title">닉네임을 입력해주세요</p>
+    <p class="nick-sub">투표에서 사용할 이름이에요</p>
+    <input type="text" id="nick-input" placeholder="닉네임 입력..." maxlength="10" onkeydown="if(event.key==='Enter')confirmNick()" style="margin-bottom:10px;text-align:center;font-size:1.1rem" />
+    <button class="btn btn-primary btn-full big" onclick="confirmNick()">시작하기 →</button>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div class="screen" id="screen-home">
+  <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
+  <div id="home-my-nick"></div>
+  <div class="home-actions">
+    <div class="action-card" onclick="createRoom()">
+      <div class="icon">🏠</div>
+      <h3>방 만들기</h3>
+      <p>새 투표방을 만들고 링크를 공유해요</p>
+    </div>
+    <div class="action-card" onclick="showJoin()">
+      <div class="icon">🚪</div>
+      <h3>방 입장</h3>
+      <p>방 코드를 입력해서 입장해요</p>
+    </div>
+  </div>
+  <div class="join-card" id="join-card" style="display:none">
+    <p class="sec-label">방 코드 입력</p>
+    <div class="input-row">
+      <input type="text" id="join-code-input" placeholder="6자리 코드..." maxlength="6" style="text-transform:uppercase;letter-spacing:0.1em" onkeydown="if(event.key==='Enter')joinRoom()" />
+      <button class="btn btn-accent2" onclick="joinRoom()">입장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ROOM ══ -->
+<div class="screen" id="screen-room">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+    <div id="room-my-nick-badge"></div>
+    <div style="display:flex;gap:6px;align-items:center">
+      <div id="room-timer" class="timer-badge"></div>
+      <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.78rem" onclick="leaveRoom()">나가기</button>
+    </div>
   </div>
 
+  <div class="room-code-display">
+    <div>
+      <div class="room-code-label">방 코드</div>
+      <div class="room-code-val" id="room-code-display"></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+      <button class="copy-btn" id="copy-link-btn" onclick="copyLink()">🔗 링크 복사</button>
+      <button class="copy-btn" id="copy-code-btn" onclick="copyCode()" style="font-size:0.74rem">코드만 복사</button>
+    </div>
+  </div>
 
+  <div class="card" style="margin-bottom:12px">
+    <div class="card-title">참가자 <span id="member-count" style="color:var(--muted)"></span></div>
+    <div id="members-list"></div>
+  </div>
 
-  <!-- Tabs -->
   <div class="tabs">
-    <button class="tab active" onclick="switchTab('setup')" id="tab-setup">🎯 후보 설정</button>
-    <button class="tab" onclick="switchTab('vote')" id="tab-vote">⭐ 투표</button>
-    <button class="tab" onclick="switchTab('result')" id="tab-result">📊 결과</button>
+    <button class="tab active" onclick="switchRoomTab('games')" id="rtab-games">🎯 후보</button>
+    <button class="tab" onclick="switchRoomTab('vote')" id="rtab-vote">⭐ 투표</button>
+    <button class="tab" onclick="switchRoomTab('result')" id="rtab-result">📊 결과</button>
   </div>
 
-  <!-- SETUP -->
-  <div id="phase-setup">
-    <div class="section">
-      <p class="sec-label">게임 후보</p>
-      <p class="sec-hint">누구나 후보를 추가할 수 있어요.</p>
-      <div class="input-row">
+  <div id="rtab-content-games">
+    <div class="card">
+      <p class="sec-label">게임 후보 — 누구나 추가 가능</p>
+      <div class="input-row" style="margin-bottom:1rem">
         <input type="text" id="game-input" placeholder="게임 이름 입력..." onkeydown="if(event.key==='Enter')addGame()" />
         <button class="btn btn-primary" onclick="addGame()">+ 추가</button>
       </div>
-      <div id="game-list"></div>
-    </div>
-    <div class="section">
-      <p class="sec-label">참가자</p>
-      <p class="sec-hint">투표에 참가할 이름을 추가하세요.</p>
-      <div class="input-row">
-        <input type="text" id="voter-input" placeholder="이름 입력..." onkeydown="if(event.key==='Enter')addVoter()" />
-        <button class="btn btn-primary" onclick="addVoter()">+ 추가</button>
-      </div>
-      <div id="voter-tags"></div>
-    </div>
-    <button class="btn btn-full" onclick="goVote()">투표 시작하기 →</button>
-  </div>
-
-  <!-- VOTE -->
-  <div id="phase-vote" style="display:none">
-    <p class="sec-label">선호도 투표</p>
-    <p class="sec-hint">각 게임에 1~5점을 매겨주세요. (1점 = 싫음, 5점 = 너무 좋음)</p>
-    <div class="vote-select-wrap">
-      <select id="voter-select" onchange="renderVoteForm()"></select>
-    </div>
-    <div id="vote-form"></div>
-    <button class="btn btn-full" onclick="submitVote()">제출하기 ✓</button>
-    <div class="vote-status" id="vote-status">
-      <div id="status-text"></div>
-      <div class="prog-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+      <div id="game-list"><div class="empty">아직 게임 후보가 없어요.</div></div>
     </div>
   </div>
 
-  <!-- RESULT -->
-  <div id="phase-result" style="display:none">
+  <div id="rtab-content-vote" style="display:none">
+    <div id="vote-content"></div>
+  </div>
+
+  <div id="rtab-content-result" style="display:none">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <p class="sec-label" style="margin:0">결과</p>
-      <span class="rt-label"><span class="rt-dot"></span>실시간 반영 중</span>
+      <p class="sec-label" style="margin:0">투표 결과</p>
+      <span style="font-size:0.78rem;color:var(--accent3);display:flex;align-items:center"><span class="rt-dot"></span>실시간</span>
     </div>
     <div id="result-list"></div>
   </div>
+</div>
 
 </div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-
 <script>
-let db = null;
-let games = [];
-let voters = [];
-let votes = {};
-let currentRatings = {};
-let unsubscribers = [];
-
-// ── LOCAL FALLBACK (Firebase 없을 때) ──
-function localSave() {
-  localStorage.setItem('gv_games', JSON.stringify(games));
-  localStorage.setItem('gv_voters', JSON.stringify(voters));
-  localStorage.setItem('gv_votes', JSON.stringify(votes));
-}
-function localLoad() {
-  games = JSON.parse(localStorage.getItem('gv_games') || '[]');
-  voters = JSON.parse(localStorage.getItem('gv_voters') || '[]');
-  votes = JSON.parse(localStorage.getItem('gv_votes') || '{}');
-  renderAll();
-}
-
-// ── FIREBASE ──
-function initFirebase(cfg) {
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(cfg);
-    db = firebase.database();
-    subscribeFirebase();
-  } catch(e) {
-    console.error('Firebase 연결 실패:', e.message);
-    localLoad();
-  }
-}
-
-function subscribeFirebase() {
-  const ref = db.ref('gamevote');
-  ref.on('value', snap => {
-    const d = snap.val() || {};
-    games  = d.games  || [];
-    voters = d.voters || [];
-    votes  = d.votes  || {};
-    renderAll();
-  });
-}
-
-function fbSet(path, val) {
-  if (db) {
-    db.ref('gamevote/' + path).set(val);
-  } else {
-    localSave();
-  }
-}
-
-// ── INIT ──
-const FIREBASE_CONFIG = {
+firebase.initializeApp({
   apiKey: "AIzaSyBt_av2DXu9hP0kYGJFW9bsCAJ4qfKai9E",
   databaseURL: "https://gameselecter-14467-default-rtdb.firebaseio.com",
   projectId: "gameselecter-14467"
-};
+});
+const db = firebase.database();
+
+let myNick = localStorage.getItem('gv_nick') || '';
+let roomCode = '';
+let roomData = {};
+let roomListener = null;
+let timerInterval = null;
+let tmpVote = {};
+
+const EXPIRE_MS = 12 * 60 * 60 * 1000;
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
 
 window.onload = () => {
-  initFirebase(FIREBASE_CONFIG);
+  const params = new URLSearchParams(window.location.search);
+  const codeFromUrl = params.get('room');
+  if (myNick) {
+    showScreen('home');
+    renderHomeNick();
+    if (codeFromUrl) {
+      document.getElementById('join-code-input').value = codeFromUrl.toUpperCase();
+      document.getElementById('join-card').style.display = 'block';
+      joinRoom();
+    }
+  } else {
+    showScreen('nick');
+    if (codeFromUrl) localStorage.setItem('gv_pending_room', codeFromUrl.toUpperCase());
+  }
 };
 
-// ── TABS ──
-function switchTab(tab) {
-  ['setup','vote','result'].forEach(t => {
-    document.getElementById('phase-'+t).style.display = t===tab ? 'block' : 'none';
-    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+function confirmNick() {
+  const val = document.getElementById('nick-input').value.trim();
+  if (!val) { alert('닉네임을 입력해주세요!'); return; }
+  myNick = val;
+  localStorage.setItem('gv_nick', myNick);
+  renderHomeNick();
+  showScreen('home');
+  const pending = localStorage.getItem('gv_pending_room');
+  if (pending) {
+    localStorage.removeItem('gv_pending_room');
+    document.getElementById('join-code-input').value = pending;
+    document.getElementById('join-card').style.display = 'block';
+    joinRoom();
+  }
+}
+
+function renderHomeNick() {
+  document.getElementById('home-my-nick').innerHTML =
+    `<div class="my-nick">👤 ${myNick} <span style="color:var(--muted);cursor:pointer;margin-left:4px" onclick="changeNick()">✕</span></div>`;
+}
+
+function changeNick() {
+  localStorage.removeItem('gv_nick');
+  myNick = '';
+  document.getElementById('nick-input').value = '';
+  showScreen('nick');
+}
+
+function showJoin() {
+  const jc = document.getElementById('join-card');
+  jc.style.display = jc.style.display === 'none' ? 'block' : 'none';
+}
+
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+}
+
+async function createRoom() {
+  const code = genCode();
+  const now = Date.now();
+  await db.ref('rooms/' + code).set({
+    code, createdAt: now, expiresAt: now + EXPIRE_MS,
+    host: myNick,
+    members: { [myNick]: { joinedAt: now } },
+    games: [], votes: {}
   });
-  if (tab === 'vote') renderVoterSelect();
-  if (tab === 'result') renderResults();
+  enterRoom(code);
 }
 
-// ── RENDER ALL ──
-function renderAll() {
+async function joinRoom() {
+  const code = (document.getElementById('join-code-input').value || '').trim().toUpperCase();
+  if (code.length !== 6) { alert('6자리 코드를 입력해주세요!'); return; }
+  const snap = await db.ref('rooms/' + code).get();
+  if (!snap.exists()) { alert('존재하지 않는 방이에요.'); return; }
+  const data = snap.val();
+  if (Date.now() > data.expiresAt) { alert('만료된 방이에요. (12시간 후 자동 삭제)'); return; }
+  await db.ref(`rooms/${code}/members/${myNick}`).set({ joinedAt: Date.now() });
+  enterRoom(code);
+}
+
+function enterRoom(code) {
+  roomCode = code;
+  tmpVote = {};
+  showScreen('room');
+  const url = new URL(window.location.href);
+  url.searchParams.set('room', code);
+  window.history.replaceState({}, '', url);
+  document.getElementById('room-code-display').textContent = code;
+  document.getElementById('room-my-nick-badge').innerHTML = `<div class="my-nick">👤 ${myNick}</div>`;
+  if (roomListener) db.ref('rooms/' + roomCode).off('value', roomListener);
+  roomListener = db.ref('rooms/' + code).on('value', snap => {
+    if (!snap.exists()) { alert('방이 삭제됐어요.'); leaveRoom(); return; }
+    roomData = snap.val();
+    renderRoom();
+  });
+  startTimer();
+  switchRoomTab('games');
+}
+
+function leaveRoom() {
+  if (roomListener) { db.ref('rooms/' + roomCode).off('value', roomListener); roomListener = null; }
+  clearInterval(timerInterval);
+  roomCode = ''; roomData = {}; tmpVote = {};
+  const url = new URL(window.location.href);
+  url.searchParams.delete('room');
+  window.history.replaceState({}, '', url);
+  showScreen('home');
+}
+
+function startTimer() {
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!roomData.expiresAt) return;
+    const left = roomData.expiresAt - Date.now();
+    if (left <= 0) { document.getElementById('room-timer').textContent = '만료됨'; return; }
+    const h = Math.floor(left / 3600000);
+    const m = Math.floor((left % 3600000) / 60000);
+    const el = document.getElementById('room-timer');
+    el.textContent = `${h}시간 ${m}분 후 삭제`;
+    el.className = 'timer-badge' + (left < 3600000 ? ' soon' : '');
+  }, 10000);
+}
+
+function copyLink() {
+  const url = `${location.origin}${location.pathname}?room=${roomCode}`;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('copy-link-btn');
+    btn.textContent = '✅ 복사됨!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '🔗 링크 복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(roomCode).then(() => {
+    const btn = document.getElementById('copy-code-btn');
+    btn.textContent = '✅ 복사됨!'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '코드만 복사'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function renderRoom() {
+  renderMembers();
   renderGameList();
-  renderVoterTags();
-  if (document.getElementById('phase-vote').style.display !== 'none') renderVoterSelect();
-  if (document.getElementById('phase-result').style.display !== 'none') renderResults();
+  const activeTab = document.querySelector('.tab.active')?.id?.replace('rtab-', '');
+  if (activeTab === 'vote') renderVoteTab();
+  if (activeTab === 'result') renderResultTab();
 }
 
-// ── SETUP ──
+function renderMembers() {
+  const members = roomData.members || {};
+  const votes = roomData.votes || {};
+  const keys = Object.keys(members);
+  document.getElementById('member-count').textContent = `(${keys.length}명)`;
+  document.getElementById('members-list').innerHTML = keys.length ?
+    `<div class="members-wrap">${keys.map(n =>
+      `<div class="member-chip ${n===myNick?'me':''} ${votes[n]?'voted':''}">${n===myNick?'👤':'👥'} ${n}${votes[n]?' ✓':''}</div>`
+    ).join('')}</div>` : '<div class="empty">참가자 없음</div>';
+}
+
 function renderGameList() {
+  const games = roomData.games || [];
   const el = document.getElementById('game-list');
   if (!games.length) { el.innerHTML = '<div class="empty">아직 게임 후보가 없어요.</div>'; return; }
-  el.innerHTML = games.map((g,i) => `
-    <div class="card"><div class="game-item">
-      <div class="game-dot"></div>
-      <span class="game-name-text">${g}</span>
-      <button class="btn btn-danger" onclick="removeGame(${i})">✕</button>
-    </div></div>
-  `).join('');
+  el.innerHTML = games.map((g, i) =>
+    `<div class="game-item"><div class="game-dot"></div><span class="game-name-text">${g}</span><button class="btn btn-danger-soft" onclick="removeGame(${i})">✕</button></div>`
+  ).join('');
 }
 
-function addGame() {
+async function addGame() {
   const inp = document.getElementById('game-input');
-  const v = inp.value.trim();
-  if (!v || games.includes(v)) { inp.value=''; return; }
-  games.push(v);
+  const val = inp.value.trim();
+  if (!val) return;
+  const games = [...(roomData.games || [])];
+  if (games.includes(val)) { inp.value = ''; return; }
+  games.push(val);
+  await db.ref(`rooms/${roomCode}/games`).set(games);
   inp.value = '';
-  fbSet('games', games);
 }
 
-function removeGame(i) {
+async function removeGame(i) {
+  const games = [...(roomData.games || [])];
   games.splice(i, 1);
-  fbSet('games', games);
+  await db.ref(`rooms/${roomCode}/games`).set(games);
 }
 
-function renderVoterTags() {
-  const el = document.getElementById('voter-tags');
-  if (!voters.length) { el.innerHTML = '<div class="empty">참가자를 추가해주세요.</div>'; return; }
-  el.innerHTML = '<div class="voter-tags">' + voters.map((v,i) => `
-    <div class="vtag ${votes[v] ? 'done' : ''}">
-      ${v}${votes[v] ? ' ✓' : ''}
-      <span class="xbtn" onclick="removeVoter(${i})">✕</span>
-    </div>
-  `).join('') + '</div>';
-}
-
-function addVoter() {
-  const inp = document.getElementById('voter-input');
-  const v = inp.value.trim();
-  if (!v || voters.includes(v)) { inp.value=''; return; }
-  voters.push(v);
-  inp.value = '';
-  fbSet('voters', voters);
-}
-
-function removeVoter(i) {
-  const name = voters[i];
-  voters.splice(i, 1);
-  delete votes[name];
-  if (db) { db.ref('gamevote/voters').set(voters); db.ref('gamevote/votes').set(votes); }
-  else localSave();
-  renderAll();
-}
-
-function goVote() {
-  if (!games.length) { alert('게임 후보를 하나 이상 추가해주세요!'); return; }
-  if (!voters.length) { alert('참가자를 한 명 이상 추가해주세요!'); return; }
-  switchTab('vote');
-}
-
-// ── VOTE ──
-function renderVoterSelect() {
-  const sel = document.getElementById('voter-select');
-  const cur = sel.value;
-  sel.innerHTML = voters.map(v => `<option value="${v}">${v}${votes[v]?' ✓':''}</option>`).join('');
-  if (cur && voters.includes(cur)) sel.value = cur;
-  renderVoteForm();
-  updateStatus();
-}
-
-function renderVoteForm() {
-  const voter = document.getElementById('voter-select').value;
-  if (!voter) { document.getElementById('vote-form').innerHTML = ''; return; }
-  const existing = votes[voter] || {};
-  currentRatings = {...existing};
-  document.getElementById('vote-form').innerHTML = games.map(g => {
-    const s = currentRatings[g] || 0;
-    return `<div class="card">
-      <div class="rating-row">
-        <span class="rating-game">${g}</span>
-        <div class="stars" id="st-${encodeURIComponent(g)}">
-          ${[1,2,3,4,5].map(n => `<div class="star ${s===n&&n===1?'s1':s>=n&&s>0?'sel':''}" onclick="rate('${g.replace(/'/g,"\\'")}',${n})">${n}</div>`).join('')}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function rate(game, score) {
-  currentRatings[game] = score;
-  const key = encodeURIComponent(game);
-  document.querySelectorAll(`#st-${key} .star`).forEach((s,i) => {
-    s.className = 'star';
-    if (score === 1 && i === 0) s.className = 'star s1';
-    else if (i+1 <= score && score > 1) s.className = 'star sel';
-    else if (i+1 === score && score === 1) s.className = 'star s1';
+function switchRoomTab(tab) {
+  ['games','vote','result'].forEach(t => {
+    document.getElementById('rtab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('rtab-content-'+t).style.display = t===tab?'block':'none';
   });
+  if (tab==='vote') renderVoteTab();
+  if (tab==='result') renderResultTab();
 }
 
-function submitVote() {
-  const voter = document.getElementById('voter-select').value;
-  if (!voter) return;
-  const missing = games.filter(g => !currentRatings[g]);
+function renderVoteTab() {
+  const el = document.getElementById('vote-content');
+  const games = roomData.games || [];
+  const myVoteSaved = (roomData.votes || {})[myNick];
+  const members = Object.keys(roomData.members || {});
+  const votedCount = Object.keys(roomData.votes || {}).length;
+
+  if (!games.length) { el.innerHTML = '<div class="empty">게임 후보를 먼저 추가해주세요.</div>'; return; }
+
+  let html = `<p class="sec-hint" style="margin-bottom:1rem">각 게임에 1~5점을 매겨주세요. (1점 = 싫음, 5점 = 너무 좋음)</p>`;
+
+  const currentVote = myVoteSaved || tmpVote;
+
+  html += games.map(g => {
+    const s = currentVote[g] || 0;
+    const stars = [1,2,3,4,5].map(n => {
+      let cls = 'star';
+      if (n <= s) cls += n === 1 ? ' s1 sel' : ' sel';
+      const disabled = myVoteSaved ? 'style="pointer-events:none;opacity:0.7"' : '';
+      return `<div class="${cls}" onclick="rateStar('${g.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}',${n})" ${disabled}>${n}</div>`;
+    }).join('');
+    return `<div class="vote-game-card ${s>0?'rated':''}"><div class="vote-game-name">${g}</div><div class="stars" id="vst-${encodeURIComponent(g)}">${stars}</div></div>`;
+  }).join('');
+
+  if (!myVoteSaved) {
+    html += `<button class="btn btn-primary btn-full" onclick="submitVote()">제출하기 ✓</button>`;
+  } else {
+    html += `<div style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--accent3)">✅ 투표 완료! 다른 참가자를 기다리는 중...</div>`;
+    html += `<button class="btn btn-ghost btn-full" onclick="resetMyVote()" style="margin-top:8px">다시 투표하기</button>`;
+  }
+
+  html += `<div style="margin-top:1.25rem;font-size:0.82rem;color:var(--muted2);text-align:center">${votedCount}/${members.length}명 투표 완료</div>
+    <div class="prog-wrap"><div class="prog-bar" style="width:${members.length?(votedCount/members.length*100):0}%"></div></div>`;
+
+  el.innerHTML = html;
+}
+
+function rateStar(game, score) {
+  if ((roomData.votes || {})[myNick]) return;
+  tmpVote[game] = score;
+  const key = encodeURIComponent(game);
+  const stars = document.querySelectorAll(`#vst-${key} .star`);
+  stars.forEach((s, i) => {
+    s.className = 'star';
+    if (i+1 <= score) s.className += i === 0 ? ' s1 sel' : ' sel';
+  });
+  const card = document.querySelector(`#vst-${key}`)?.closest('.vote-game-card');
+  if (card) card.classList.toggle('rated', score > 0);
+}
+
+async function submitVote() {
+  const games = roomData.games || [];
+  const missing = games.filter(g => !tmpVote[g]);
   if (missing.length) { alert(`점수를 아직 안 매긴 게임이 있어요:\n${missing.join(', ')}`); return; }
-  votes[voter] = {...currentRatings};
-  if (db) db.ref('gamevote/votes/' + voter).set(votes[voter]);
-  else localSave();
-  renderVoterSelect();
+  await db.ref(`rooms/${roomCode}/votes/${myNick}`).set({...tmpVote});
+  tmpVote = {};
 }
 
-function updateStatus() {
-  const done = voters.filter(v => votes[v]).length;
-  const total = voters.length;
-  document.getElementById('status-text').textContent = `${done} / ${total}명 투표 완료`;
-  document.getElementById('prog-bar').style.width = total ? (done/total*100)+'%' : '0%';
+async function resetMyVote() {
+  await db.ref(`rooms/${roomCode}/votes/${myNick}`).remove();
+  tmpVote = {};
 }
 
-// ── RESULTS ──
-function renderResults() {
+function checkAllVoted() {
+  const members = Object.keys(roomData.members || {});
+  const voted = Object.keys(roomData.votes || {});
+  return members.length > 0 && members.every(m => voted.includes(m));
+}
+
+function renderResultTab() {
   const el = document.getElementById('result-list');
-  const voteKeys = Object.keys(votes);
-  if (!voteKeys.length) { el.innerHTML = '<div class="empty">아직 투표 결과가 없어요.</div>'; return; }
+  const allVoted = checkAllVoted();
+  const members = Object.keys(roomData.members || {});
+  const votes = roomData.votes || {};
+  const votedCount = Object.keys(votes).length;
+
+  if (!allVoted) {
+    el.innerHTML = `<div class="pending-result">
+      <div class="icon">🔒</div>
+      <h3>아직 모두가 투표하지 않았어요</h3>
+      <p>모든 참가자가 투표를 완료해야<br>결과를 볼 수 있어요</p>
+      <div style="margin-top:0.75rem;font-size:0.85rem;color:var(--muted2)">${votedCount}/${members.length}명 완료</div>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${members.length?(votedCount/members.length*100):0}%"></div></div>
+    </div>`;
+    return;
+  }
+
+  const games = roomData.games || [];
+  if (!games.length) { el.innerHTML = '<div class="empty">게임 후보가 없어요.</div>'; return; }
 
   const totals = games.map(g => {
-    const vscores = voters.map(v => ({ voter:v, score: votes[v] ? (votes[v][g]||0) : 0 })).filter(v=>v.score>0);
-    const sum = vscores.reduce((a,b)=>a+b.score,0);
-    const hasOne = vscores.some(v=>v.score===1);
-    const allOne = vscores.length && vscores.every(v=>v.score===1);
-    return { game:g, sum, vscores, hasOne, allOne };
-  }).sort((a,b)=>b.sum-a.sum);
+    const vscores = members.map(v => ({ voter: v, score: votes[v]?.(votes[v][g]||0) || (votes[v]?votes[v][g]||0:0) })).filter(v => v.score > 0);
+    const sum = vscores.reduce((a,b) => a+b.score, 0);
+    return { game: g, sum, vscores, hasOne: vscores.some(v=>v.score===1), allOne: vscores.length>0&&vscores.every(v=>v.score===1) };
+  }).sort((a,b) => b.sum-a.sum);
 
   const maxSum = Math.max(...totals.map(t=>t.sum), 1);
   const topScore = totals[0]?.sum || 0;
 
   el.innerHTML = totals.map(t => {
-    const isWin = t.sum === topScore && !t.allOne && t.sum > 0;
+    const isWin = t.sum===topScore && !t.allOne && t.sum>0;
     const isElim = t.allOne;
-    const barW = Math.round(t.sum/maxSum*100);
     const badge = isWin ? `<span class="badge badge-win">🏆 1위</span>` :
-                  isElim ? `<span class="badge badge-elim">탈락</span>` :
-                  t.hasOne ? `<span class="badge badge-warn">⚠️ 1점 있음</span>` : '';
-    return `<div class="result-item ${isWin?'winner':''} ${isElim?'elim':''}">
+      isElim ? `<span class="badge badge-elim">탈락</span>` :
+      t.hasOne ? `<span class="badge badge-warn">⚠️ 1점</span>` : '';
+    return `<div class="result-card ${isWin?'winner':''} ${isElim?'elim':''}">
       <div class="result-top">
         <span class="result-gname">${t.game}</span>
-        <div class="result-right">
-          ${badge}
-          <span class="result-pts ${isWin?'winner':''} ${isElim?'elim':''}">${t.sum}점</span>
-        </div>
+        <div style="display:flex;align-items:center;gap:8px">${badge}<span class="result-pts ${isWin?'winner':''} ${isElim?'elim':''}">${t.sum}점</span></div>
       </div>
-      <div class="bar-track"><div class="bar-fill ${isElim?'elim':''}" style="width:${barW}%"></div></div>
-      <div class="voter-scores">
-        ${t.vscores.map(vs=>`<span class="vs-chip">${vs.voter}: ${vs.score}점</span>`).join('')}
-      </div>
+      <div class="bar-track"><div class="bar-fill ${isElim?'elim':''}" style="width:${Math.round(t.sum/maxSum*100)}%"></div></div>
+      <div class="voter-scores">${t.vscores.map(vs=>`<span class="vs-chip">${vs.voter}: ${vs.score}점</span>`).join('')}</div>
     </div>`;
   }).join('');
 }
