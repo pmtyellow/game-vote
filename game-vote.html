@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎮 게임 투표 & 룰렛</title>
+<title>🎮 게임 투표 & 룰렛 V3</title>
 <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* 기존 스타일 및 추가 스타일 */
 :root {
   --bg: #0c0c10; --surface: #16161e; --surface2: #1e1e28; --border: rgba(255,255,255,0.07);
   --accent: #818cf8; --accent2: #fb923c; --accent3: #34d399; --danger: #f87171; --text: #e8e8f0; --muted: rgba(232,232,240,0.4);
@@ -18,110 +17,140 @@ body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', s
 .screen.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 강조 전광판 */
-.winner-announcement { background: linear-gradient(135deg, rgba(129,140,248,0.2), rgba(251,146,60,0.1)); border: 2px solid var(--accent); border-radius: 20px; padding: 2rem; text-align: center; margin-bottom: 2rem; position: relative; overflow: hidden; }
-.winner-announcement h2 { font-family: 'Gmarket Sans'; font-size: 1.8rem; margin-bottom: 0.5rem; color: #fff; }
-.winner-announcement p { font-size: 1.1rem; color: var(--accent3); font-weight: 700; }
-.crown-icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+/* UI 개선 */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-bottom: 12px; cursor: pointer; user-select: none; transition: 0.2s; }
+.card:hover { border-color: var(--accent); }
+.no-click { cursor: default; }
+input[type=text], select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: #fff; margin-bottom: 10px; }
 
-/* 룰렛 스타일 */
+/* 상단 정보 영역 */
+.room-header { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.info-row { display: flex; justify-content: space-between; align-items: center; background: var(--surface2); padding: 12px 18px; border-radius: 15px; border: 1px solid var(--border); }
+.room-code { font-family: 'Gmarket Sans'; font-size: 1.2rem; color: var(--accent); letter-spacing: 2px; }
+.member-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px; }
+.m-chip { font-size: 0.75rem; background: rgba(129,140,248,0.1); border: 1px solid var(--accent); padding: 3px 10px; border-radius: 20px; color: var(--accent); }
+
+/* 룰렛 & 모달 */
 .roulette-container { position: relative; width: 300px; height: 300px; margin: 2rem auto; }
-canvas { width: 100%; height: 100%; border-radius: 50%; border: 5px solid var(--surface2); }
-.roulette-arrow { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--danger); z-index: 10; }
+#rouletteCanvas { width: 100%; height: 100%; transition: transform 6s cubic-bezier(0.15, 0, 0.15, 1); }
+.roulette-arrow { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 30px solid var(--danger); z-index: 10; }
+.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+.modal-content { background: var(--surface); border: 2px solid var(--accent); border-radius: 25px; padding: 2.5rem; text-align: center; max-width: 400px; width: 100%; }
 
-/* 단계 내비게이션 버튼 */
-.step-nav { display: flex; gap: 10px; margin-top: 1.5rem; }
 .btn { padding: 12px 20px; border-radius: 12px; border: none; cursor: pointer; font-weight: 700; transition: all 0.2s; font-family: 'Noto Sans KR'; }
 .btn-primary { background: var(--accent); color: #fff; width: 100%; }
 .btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.btn-row { display: flex; gap: 10px; margin-top: 1rem; }
 
-/* 기존 카드 스타일 유지 */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-bottom: 12px; }
-.input-row { display: flex; gap: 8px; margin-bottom: 1rem; }
-input[type=text] { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px; color: #fff; }
+.step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 2rem; }
+.step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--surface2); cursor: pointer; }
+.step-dot.active { background: var(--accent); width: 25px; border-radius: 5px; }
+
 .star { flex: 1; height: 40px; border-radius: 10px; background: var(--surface2); display: flex; align-items: center; justify-content: center; cursor: pointer; }
 .star.sel { background: var(--accent); color: #fff; }
-.star.s1.sel { background: var(--danger); }
-.badge-warn { background: rgba(248,113,113,0.15); color: var(--danger); padding: 2px 8px; border-radius: 10px; font-size: 0.75rem; }
-
-/* 단계 인디케이터 */
-.step-indicator { display: flex; justify-content: center; gap: 8px; margin-bottom: 2rem; }
-.step-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--surface2); }
-.step-dot.active { background: var(--accent); width: 25px; border-radius: 5px; }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="screen active" id="screen-nick">
-    <div style="text-align:center;">
-      <h1 style="font-family:'Gmarket Sans'; margin-bottom:2rem;">🎮 Game Selector</h1>
-      <input type="text" id="nick-input" placeholder="닉네임 입력..." style="text-align:center; width:80%; margin-bottom:1rem;">
-      <button class="btn btn-primary" onclick="confirmNick()">입장하기</button>
+    <div style="text-align:center; padding-top: 4rem;">
+      <h1 style="font-family:'Gmarket Sans'; font-size: 2.5rem; margin-bottom:1rem;">👾 GAME VOTE</h1>
+      <p style="color:var(--muted); margin-bottom:3rem;">함께 즐길 게임을 결정하세요</p>
+      <input type="text" id="nick-input" placeholder="닉네임 입력..." style="text-align:center; width:85%;">
+      <button class="btn btn-primary" onclick="confirmNick()">시작하기</button>
     </div>
   </div>
 
   <div class="screen" id="screen-home">
-    <div class="card" onclick="createRoom()">🏠 새 투표방 만들기</div>
-    <div class="card" onclick="document.getElementById('join-input').style.display='block'">🚪 방 참가하기</div>
-    <div id="join-input" style="display:none;" class="input-row">
-      <input type="text" id="room-code-input" placeholder="코드 6자리">
-      <button class="btn btn-primary" style="width:auto;" onclick="joinRoom()">참가</button>
+    <div class="card no-click">
+      <h3 style="margin-bottom:15px;">🏠 새로운 방 만들기</h3>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:10px;">결과 방식 선택</p>
+      <select id="setting-mode">
+        <option value="vote">투표 결과 바로 보기 (기본)</option>
+        <option value="roulette">결과를 룰렛으로 결정하기</option>
+      </select>
+      <button class="btn btn-primary" onclick="createRoom()">방 만들기</button>
+    </div>
+    <div class="card" onclick="document.getElementById('join-area').style.display='block'">🚪 방 참가하기</div>
+    <div id="join-area" style="display:none; margin-top:10px;">
+      <input type="text" id="join-code-input" placeholder="6자리 코드 입력">
+      <button class="btn btn-primary" onclick="joinRoom()">참가</button>
     </div>
   </div>
 
   <div class="screen" id="screen-room">
+    <div class="room-header">
+      <div class="info-row">
+        <div>
+          <span style="font-size:0.7rem; color:var(--muted); display:block;">ROOM CODE</span>
+          <span class="room-code" id="display-code">-</span>
+        </div>
+        <button class="btn btn-ghost" style="width:auto; font-size:0.8rem;" onclick="copyLink()">🔗 링크 복사</button>
+      </div>
+      <div class="member-list" id="member-list"></div>
+    </div>
+
     <div class="step-indicator">
-      <div class="step-dot active" id="dot-1"></div>
-      <div class="step-dot" id="dot-2"></div>
-      <div class="step-dot" id="dot-3"></div>
+      <div class="step-dot active" onclick="goToStep(1)" id="dot-1"></div>
+      <div class="step-dot" onclick="goToStep(2)" id="dot-2"></div>
+      <div class="step-dot" onclick="goToStep(3)" id="dot-3"></div>
     </div>
 
     <div id="step-1" class="room-step">
-      <div class="card">
+      <div class="card no-click">
         <h3>🎯 후보 게임 추가</h3>
-        <p style="font-size:0.8rem; color:var(--muted); margin-bottom:1rem;">오늘 하고 싶은 게임을 모두 적어주세요.</p>
-        <div class="input-row">
-          <input type="text" id="game-input" placeholder="게임 이름...">
-          <button class="btn btn-primary" style="width:auto;" onclick="addGame()">추가</button>
+        <div style="display:flex; gap:8px; margin: 15px 0;">
+          <input type="text" id="game-input" placeholder="게임 이름..." style="margin-bottom:0;">
+          <button class="btn btn-primary" style="width:auto;" onclick="addGame()">+</button>
         </div>
-        <div id="game-list"></div>
+        <div id="game-list" style="max-height: 200px; overflow-y:auto;"></div>
       </div>
-      <button class="btn btn-primary" onclick="goToStep(2)">다음: 투표하기 →</button>
+      <button class="btn btn-primary" onclick="goToStep(2)">투표 단계로 이동 →</button>
     </div>
 
     <div id="step-2" class="room-step" style="display:none;">
-      <div class="card">
-        <h3>⭐ 점수 매기기</h3>
-        <div id="vote-list"></div>
+      <div id="vote-area"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToStep(1)">← 이전</button>
+        <button class="btn btn-primary" id="btn-submit" onclick="submitVote()">투표 제출하기</button>
       </div>
-      <button class="btn btn-primary" id="btn-submit-vote" onclick="submitVote()">투표 제출하기 ✓</button>
-      <div id="wait-msg" style="display:none; text-align:center; margin-top:1rem; color:var(--accent3);">모든 인원이 투표할 때까지 기다려주세요...</div>
+      <p id="vote-wait" style="display:none; text-align:center; margin-top:15px; color:var(--accent3); font-weight:700;">다른 사람들의 투표를 기다리고 있습니다...</p>
     </div>
 
     <div id="step-3" class="room-step" style="display:none;">
-      <div id="result-winner-area"></div>
-      <div class="card">
-        <h3>📊 세부 결과</h3>
-        <div id="result-detail-list"></div>
-      </div>
-      
-      <div class="card" id="roulette-section">
-        <h3>🎡 결과가 맘에 안 드시나요?</h3>
-        <p style="font-size:0.8rem; color:var(--muted);">투표 점수 비율대로 칸이 커지는 룰렛입니다.</p>
-        <div class="routte-container">
+      <div id="final-result-area"></div>
+      <div id="roulette-area" style="display:none;">
+        <div class="roulette-container">
           <div class="roulette-arrow"></div>
           <canvas id="rouletteCanvas" width="300" height="300"></canvas>
         </div>
-        <button class="btn btn-primary" onclick="spinRoulette()">룰렛 돌리기!!</button>
+        <button class="btn btn-primary" id="btn-spin" onclick="requestRouletteSpin()">룰렛 돌리기 (전원 동의 필요)</button>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="result-modal">
+  <div class="modal-content">
+    <div style="font-size:3rem; margin-bottom:10px;">🏆</div>
+    <h2 id="modal-game-name" style="font-family:'Gmarket Sans'; margin-bottom:10px; color:#fff;">-</h2>
+    <p id="modal-method-text" style="color:var(--accent3); font-weight:700; margin-bottom:20px;">룰렛으로 선정되었습니다!</p>
+    <button class="btn btn-primary" onclick="closeModal()">확인</button>
+  </div>
+</div>
+
+<div class="modal" id="agree-modal">
+  <div class="modal-content">
+    <h3>🎡 룰렛으로 다시 정할까요?</h3>
+    <p style="margin: 15px 0; color:var(--muted); font-size:0.9rem;">투표 결과 대신 룰렛으로 최종 게임을 결정합니다. 모든 참가자가 동의해야 합니다.</p>
+    <div id="agree-status" style="margin-bottom:15px; font-weight:700; color:var(--accent);">현재 동의: 0명</div>
+    <button class="btn btn-primary" onclick="agreeRoulette()">동의합니다</button>
   </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// Firebase 설정 (기존 설정 유지)
 firebase.initializeApp({
   apiKey: "AIzaSyBt_av2DXu9hP0kYGJFW9bsCAJ4qfKai9E",
   databaseURL: "https://gameselecter-14467-default-rtdb.firebaseio.com",
@@ -132,150 +161,230 @@ const db = firebase.database();
 let myNick = localStorage.getItem('gv_nick') || '';
 let roomCode = '';
 let roomData = {};
-let currentStep = 1;
 let myTempVote = {};
+let isSpinning = false;
 
-// 1~3단계 화면 전환 로직
-function goToStep(step) {
-  currentStep = step;
-  document.querySelectorAll('.room-step').forEach((el, idx) => el.style.display = (idx + 1 === step) ? 'block' : 'none');
-  document.querySelectorAll('.step-dot').forEach((el, idx) => el.classList.toggle('active', idx + 1 === step));
-  if(step === 2) renderVoteList();
-  if(step === 3) renderResults();
+function confirmNick() {
+  myNick = document.getElementById('nick-input').value.trim();
+  if(!myNick) return;
+  localStorage.setItem('gv_nick', myNick);
+  showScreen('home');
 }
 
-function renderVoteList() {
-  const el = document.getElementById('vote-list');
+async function createRoom() {
+  roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+  const mode = document.getElementById('setting-mode').value;
+  await db.ref('rooms/' + roomCode).set({
+    code: roomCode,
+    settings: { mode: mode },
+    games: [],
+    members: {[myNick]: {joined: true}},
+    votes: {},
+    rouletteAgree: {}
+  });
+  enterRoom();
+}
+
+async function joinRoom() {
+  roomCode = document.getElementById('join-code-input').value.trim().toUpperCase();
+  const snap = await db.ref('rooms/' + roomCode).get();
+  if(!snap.exists()) { alert("방이 존재하지 않습니다."); return; }
+  await db.ref(`rooms/${roomCode}/members/${myNick}`).set({joined:true});
+  enterRoom();
+}
+
+function enterRoom() {
+  showScreen('room');
+  document.getElementById('display-code').textContent = roomCode;
+  
+  db.ref('rooms/' + roomCode).on('value', snap => {
+    roomData = snap.val();
+    renderMembers();
+    renderGameList();
+    
+    // 자동 단계 전환 체크
+    const members = Object.keys(roomData.members || {});
+    const votes = Object.keys(roomData.votes || {});
+    if(members.length > 0 && members.length === votes.length) {
+      if(currentStep === 2) goToStep(3);
+    }
+
+    // 룰렛 동의 체크
+    const agrees = Object.keys(roomData.rouletteAgree || {}).length;
+    if(agrees > 0 && agrees === members.length) {
+      document.getElementById('agree-modal').style.display = 'none';
+      startRouletteSpin();
+    } else if(agrees > 0) {
+      document.getElementById('agree-status').textContent = `현재 동의: ${agrees} / ${members.length}명`;
+    }
+  });
+}
+
+let currentStep = 1;
+function goToStep(s) {
+  currentStep = s;
+  document.querySelectorAll('.room-step').forEach((el, i) => el.style.display = (i+1===s)?'block':'none');
+  document.querySelectorAll('.step-dot').forEach((el, i) => el.classList.toggle('active', i+1===s));
+  if(s === 2) renderVoteArea();
+  if(s === 3) renderResultArea();
+}
+
+function renderMembers() {
+  const el = document.getElementById('member-list');
+  el.innerHTML = Object.keys(roomData.members || {}).map(m => `<span class="m-chip">👤 ${m}</span>`).join('');
+}
+
+async function addGame() {
+  const inp = document.getElementById('game-input');
+  if(!inp.value.trim()) return;
   const games = roomData.games || [];
-  el.innerHTML = games.map(g => `
-    <div class="card" style="margin-bottom:8px;">
-      <div style="margin-bottom:8px;">${g}</div>
-      <div class="stars" style="display:flex; gap:5px;">
-        ${[1,2,3,4,5].map(n => `<div class="star ${myTempVote[g]===n?'sel':''} ${n===1?'s1':''}" onclick="setTempScore('${g}',${n})">${n}</div>`).join('')}
+  games.push(inp.value.trim());
+  await db.ref(`rooms/${roomCode}/games`).set(games);
+  inp.value = '';
+}
+
+function renderGameList() {
+  const el = document.getElementById('game-list');
+  el.innerHTML = (roomData.games || []).map(g => `<div style="padding:10px; border-bottom:1px solid var(--border);">🎮 ${g}</div>`).join('');
+}
+
+function renderVoteArea() {
+  const el = document.getElementById('vote-area');
+  el.innerHTML = (roomData.games || []).map(g => `
+    <div class="card no-click">
+      <p style="margin-bottom:10px; font-weight:700;">${g}</p>
+      <div style="display:flex; gap:5px;">
+        ${[1,2,3,4,5].map(n => `<div class="star ${myTempVote[g]===n?'sel':''}" onclick="setVote('${g}',${n})">${n}</div>`).join('')}
       </div>
     </div>
   `).join('');
 }
 
-function setTempScore(game, score) {
-  myTempVote[game] = score;
-  renderVoteList();
-}
+function setVote(g, n) { myTempVote[g] = n; renderVoteArea(); }
 
 async function submitVote() {
-  if(Object.keys(myTempVote).length < roomData.games.length) { alert("모든 게임에 투표해주세요!"); return; }
+  if(Object.keys(myTempVote).length < (roomData.games || []).length) { alert("모든 게임에 점수를 주세요!"); return; }
   await db.ref(`rooms/${roomCode}/votes/${myNick}`).set(myTempVote);
-  document.getElementById('btn-submit-vote').style.display = 'none';
-  document.getElementById('wait-msg').style.display = 'block';
+  document.getElementById('btn-submit').style.display = 'none';
+  document.getElementById('vote-wait').style.display = 'block';
 }
 
-// 결과 렌더링 및 룰렛 초기화
-function renderResults() {
+function renderResultArea() {
+  const games = roomData.games || [];
   const votes = roomData.votes || {};
   const members = Object.keys(roomData.members || {});
-  const games = roomData.games || [];
   
-  // 점수 계산 루틴
   const scores = games.map(g => {
-    let total = 0, ones = 0;
-    members.forEach(m => {
-      const s = votes[m]?.[g] || 0;
-      total += s;
-      if(s === 1) ones++;
-    });
-    return { name: g, total, ones };
-  }).sort((a,b) => b.total - a.total);
+    let sum = 0;
+    members.forEach(m => sum += (votes[m]?.[g] || 0));
+    return { name: g, score: sum };
+  }).sort((a,b) => b.score - a.score);
 
   const winner = scores[0];
-  document.getElementById('result-winner-area').innerHTML = `
-    <div class="winner-announcement">
-      <span class="crown-icon">👑</span>
-      <h2>${winner.name}</h2>
-      <p>투표로 선정되었습니다! (${winner.total}점)</p>
+  const isRouletteMode = roomData.settings.mode === 'roulette';
+
+  let html = `
+    <div class="card no-click" style="border-color:var(--accent3); background:rgba(52,211,153,0.05);">
+      <p style="color:var(--accent3); font-size:0.8rem; margin-bottom:5px;">${isRouletteMode ? '룰렛 대기 중' : '현재 1순위'}</p>
+      <h2 style="font-family:'Gmarket Sans';">${winner.name}</h2>
+    </div>
+    <div class="card no-click">
+      <h4 style="margin-bottom:10px;">📊 전체 순위</h4>
+      ${scores.map((s,i) => `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border);"><span>${i+1}. ${s.name}</span> <span>${s.score}점</span></div>`).join('')}
     </div>
   `;
 
-  document.getElementById('result-detail-list').innerHTML = scores.map(s => `
-    <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border);">
-      <span>${s.name} ${s.ones > 0 ? `<span class="badge-warn">👎 1점 ${s.ones}명</span>` : ''}</span>
-      <span style="font-weight:700;">${s.total}점</span>
-    </div>
-  `).join('');
+  if(!isRouletteMode) {
+    html += `<button class="btn btn-ghost" onclick="requestRouletteSpin()">🎡 결과가 맘에 안 들면? 룰렛 돌리기</button>`;
+  }
 
-  initRoulette(scores);
+  document.getElementById('final-result-area').innerHTML = html;
+  
+  if(isRouletteMode || isSpinning) {
+    document.getElementById('roulette-area').style.display = 'block';
+    initRoulette(scores);
+  }
 }
 
-// 룰렛 로직
-let rouletteItems = [];
+// 룰렛 엔진
+let rouletteScores = [];
 function initRoulette(scores) {
-  rouletteItems = scores;
+  rouletteScores = scores;
   const canvas = document.getElementById('rouletteCanvas');
   const ctx = canvas.getContext('2d');
-  const totalScore = scores.reduce((a,b) => a + b.total, 0);
-  
+  const total = scores.reduce((a,b) => a + b.score, 0);
   let startAngle = 0;
+
   scores.forEach((s, i) => {
-    const sliceAngle = (s.total / totalScore) * 2 * Math.PI;
+    const angle = (s.score / total) * 2 * Math.PI;
     ctx.beginPath();
-    ctx.fillStyle = `hsl(${i * 40}, 70%, 60%)`;
+    ctx.fillStyle = `hsl(${i * (360/scores.length)}, 70%, 50%)`;
     ctx.moveTo(150, 150);
-    ctx.arc(150, 150, 140, startAngle, startAngle + sliceAngle);
+    ctx.arc(150, 150, 140, startAngle, startAngle + angle);
     ctx.fill();
-    
-    // 텍스트 추가
     ctx.save();
     ctx.translate(150, 150);
-    ctx.rotate(startAngle + sliceAngle / 2);
+    ctx.rotate(startAngle + angle/2);
     ctx.fillStyle = "#fff";
-    ctx.font = "bold 14px Noto Sans KR";
-    ctx.fillText(s.name.substring(0, 5), 70, 0);
+    ctx.font = "bold 12px Gmarket Sans";
+    ctx.fillText(s.name.substring(0,6), 60, 0);
     ctx.restore();
-    
-    startAngle += sliceAngle;
+    startAngle += angle;
   });
 }
 
-function spinRoulette() {
+function requestRouletteSpin() {
+  document.getElementById('agree-modal').style.display = 'flex';
+}
+
+async function agreeRoulette() {
+  await db.ref(`rooms/${roomCode}/rouletteAgree/${myNick}`).set(true);
+}
+
+function startRouletteSpin() {
+  if(isSpinning) return;
+  isSpinning = true;
+  document.getElementById('roulette-area').style.display = 'block';
   const canvas = document.getElementById('rouletteCanvas');
-  let rand = Math.random() * 3600 + 1080;
-  canvas.style.transition = "transform 4s cubic-bezier(0.15, 0, 0.15, 1)";
-  canvas.style.transform = `rotate(${rand}deg)`;
+  const deg = Math.floor(5000 + Math.random() * 5000);
+  canvas.style.transform = `rotate(${deg}deg)`;
+
+  setTimeout(() => {
+    const actualDeg = deg % 360;
+    const total = rouletteScores.reduce((a,b) => a + b.score, 0);
+    let currentDeg = 0;
+    // 화살표가 12시 방향(270도)에 있다고 가정하고 결과 계산
+    const winningDeg = (360 - (actualDeg % 360) + 270) % 360;
+    
+    let cumulativeDeg = 0;
+    let winner = rouletteScores[0];
+    for(let s of rouletteScores) {
+      cumulativeDeg += (s.score / total) * 360;
+      if(winningDeg <= cumulativeDeg) {
+        winner = s;
+        break;
+      }
+    }
+    showWinnerModal(winner.name, "룰렛으로 결정되었습니다!");
+    isSpinning = false;
+  }, 6500);
 }
 
-// 초기화/참가 함수 (기존 로직과 동일하므로 생략 가능하나 핵심만 유지)
-async function confirmNick() {
-  myNick = document.getElementById('nick-input').value.trim();
-  if(!myNick) return;
-  localStorage.setItem('gv_nick', myNick);
-  document.getElementById('screen-nick').classList.remove('active');
-  document.getElementById('screen-home').classList.add('active');
+function showWinnerModal(name, method) {
+  document.getElementById('modal-game-name').textContent = name;
+  document.getElementById('modal-method-text').textContent = method;
+  document.getElementById('result-modal').style.display = 'flex';
 }
 
-async function createRoom() {
-  roomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
-  await db.ref('rooms/' + roomCode).set({
-    games: [], members: {[myNick]: true}, votes: {}
-  });
-  enterRoom();
+function closeModal() { document.getElementById('result-modal').style.display = 'none'; }
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
 }
-
-function enterRoom() {
-  document.getElementById('screen-home').classList.remove('active');
-  document.getElementById('screen-room').classList.add('active');
-  db.ref('rooms/' + roomCode).on('value', snap => {
-    roomData = snap.val();
-    const votedCount = Object.keys(roomData.votes || {}).length;
-    const memberCount = Object.keys(roomData.members || {}).length;
-    if(votedCount === memberCount && memberCount > 0 && currentStep === 2) goToStep(3);
-  });
-}
-
-async function addGame() {
-  const name = document.getElementById('game-input').value;
-  const games = roomData.games || [];
-  games.push(name);
-  await db.ref(`rooms/${roomCode}/games`).set(games);
-  document.getElementById('game-list').innerHTML = games.map(g => `<div>• ${g}</div>`).join('');
+function copyLink() {
+  const url = window.location.href.split('?')[0] + "?room=" + roomCode;
+  navigator.clipboard.writeText(url);
+  alert("링크가 복사되었습니다!");
 }
 </script>
 </body>
