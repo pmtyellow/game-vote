@@ -6,20 +6,11 @@
 <title>🎮 게임 투표</title>
 <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@300;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
+/* 기존 스타일 유지 */
 :root {
-  --bg: #0c0c10;
-  --surface: #16161e;
-  --surface2: #1e1e28;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
-  --accent: #818cf8;
-  --accent2: #fb923c;
-  --accent3: #34d399;
-  --danger: #f87171;
-  --warn: #fbbf24;
-  --text: #e8e8f0;
-  --muted: rgba(232,232,240,0.4);
-  --muted2: rgba(232,232,240,0.6);
+  --bg: #0c0c10; --surface: #16161e; --surface2: #1e1e28; --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12); --accent: #818cf8; --accent2: #fb923c; --accent3: #34d399;
+  --danger: #f87171; --warn: #fbbf24; --text: #e8e8f0; --muted: rgba(232,232,240,0.4); --muted2: rgba(232,232,240,0.6);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Noto Sans KR', sans-serif; min-height: 100vh; overflow-x: hidden; }
@@ -44,93 +35,41 @@ input[type=text]::placeholder { color: var(--muted); }
 .btn-primary { background: var(--accent); color: #fff; }
 .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
 .btn-accent2 { background: var(--accent2); color: #1a0800; }
-.btn-accent2:hover { opacity: 0.85; }
 .btn-ghost { background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
-.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
 .btn-danger-soft { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); color: var(--danger); padding: 6px 10px; border-radius: 8px; font-size: 0.82rem; }
 .btn-full { width: 100%; padding: 14px; font-size: 1rem; border-radius: 14px; margin-top: 0.75rem; }
-.btn-full.big { padding: 16px; font-size: 1.05rem; }
-
-/* Room code */
 .room-code-display { background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 1rem 1.25rem; display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.room-code-label { font-size: 0.75rem; color: var(--muted); margin-bottom: 2px; }
 .room-code-val { font-family: 'Gmarket Sans', sans-serif; font-size: 1.6rem; font-weight: 700; letter-spacing: 0.15em; color: var(--accent); }
-.copy-btn { background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.2); border-radius: 10px; padding: 7px 13px; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; transition: all 0.15s; }
-.copy-btn:hover { background: rgba(129,140,248,0.22); }
+.copy-btn { background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.2); border-radius: 10px; padding: 7px 13px; color: var(--accent); cursor: pointer; font-size: 0.8rem; font-weight: 700; transition: all 0.15s; }
 .copy-btn.copied { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.25); color: var(--accent3); }
-
-/* Members */
 .members-wrap { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 0.5rem; }
 .member-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 12px; font-size: 0.82rem; }
 .member-chip.me { border-color: rgba(129,140,248,0.3); color: var(--accent); }
 .member-chip.voted { border-color: rgba(52,211,153,0.3); color: var(--accent3); }
-
-/* Game list */
 .game-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-.game-item:last-child { border-bottom: none; padding-bottom: 0; }
-.game-item:first-child { padding-top: 0; }
-.game-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
-.game-name-text { flex: 1; font-size: 0.95rem; }
-
-/* Stars */
 .vote-game-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1rem 1.25rem; margin-bottom: 10px; transition: border-color 0.2s; }
 .vote-game-card.rated { border-color: rgba(129,140,248,0.3); }
 .vote-game-name { font-size: 0.95rem; font-weight: 700; margin-bottom: 10px; }
 .stars { display: flex; gap: 6px; }
-.star { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.12s; font-family: 'Noto Sans KR', sans-serif; }
-.star:hover { border-color: var(--accent); color: var(--accent); background: rgba(129,140,248,0.08); }
+.star { flex: 1; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--muted); cursor: pointer; font-size: 0.85rem; font-weight: 700; display: flex; align-items: center; justify-content: center; transition: all 0.12s; }
 .star.sel { background: rgba(129,140,248,0.2); border-color: var(--accent); color: var(--accent); }
-.star.s1 { background: rgba(248,113,113,0.15); border-color: rgba(248,113,113,0.35); color: var(--danger); }
-.star.s1.sel { background: rgba(248,113,113,0.25); }
-
-/* Results */
+.star.s1.sel { background: rgba(248,113,113,0.25); border-color: rgba(248,113,113,0.35); color: var(--danger); }
 .result-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 10px; }
 .result-card.winner { border-color: rgba(129,140,248,0.4); background: rgba(129,140,248,0.06); }
-.result-card.elim { opacity: 0.45; border-color: rgba(248,113,113,0.2); }
 .result-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-.result-gname { font-size: 0.95rem; font-weight: 700; }
 .result-pts { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; font-weight: 700; }
-.result-pts.winner { color: var(--accent); }
-.result-pts.elim { color: var(--danger); }
-.badge { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; }
-.badge-win { background: rgba(129,140,248,0.2); color: var(--accent); border: 1px solid rgba(129,140,248,0.3); }
-.badge-elim { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.2); }
-.badge-warn { background: rgba(251,191,36,0.15); color: var(--warn); border: 1px solid rgba(251,191,36,0.2); }
 .bar-track { height: 6px; background: var(--surface2); border-radius: 3px; margin-bottom: 10px; overflow: hidden; }
-.bar-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
-.bar-fill.elim { background: var(--danger); }
-.voter-scores { display: flex; flex-wrap: wrap; gap: 6px; }
-.vs-chip { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); }
-
-/* Tabs */
+.bar-fill { height: 100%; background: var(--accent); transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+.vs-chip { font-size: 0.75rem; padding: 2px 10px; border-radius: 20px; background: var(--surface2); border: 1px solid var(--border); color: var(--muted2); margin-right: 4px; }
 .tabs { display: flex; gap: 5px; background: var(--surface); border-radius: 14px; padding: 5px; margin-bottom: 1.25rem; }
-.tab { flex: 1; padding: 9px 4px; border: none; border-radius: 10px; background: transparent; color: var(--muted2); font-size: 0.82rem; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; font-weight: 500; transition: all 0.2s; }
+.tab { flex: 1; padding: 9px 4px; border: none; border-radius: 10px; background: transparent; color: var(--muted2); font-size: 0.82rem; cursor: pointer; font-weight: 500; transition: all 0.2s; }
 .tab.active { background: var(--surface2); color: var(--text); }
-
-/* Misc */
 .my-nick { display: inline-flex; align-items: center; gap: 6px; background: rgba(129,140,248,0.12); border: 1px solid rgba(129,140,248,0.25); border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: var(--accent); margin-bottom: 1.25rem; }
 .timer-badge { font-size: 0.78rem; color: var(--muted2); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 3px 10px; }
-.timer-badge.soon { color: var(--warn); border-color: rgba(251,191,36,0.3); }
-.home-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .action-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem 1.25rem; cursor: pointer; text-align: center; transition: all 0.2s; }
 .action-card:hover { border-color: var(--border2); transform: translateY(-2px); }
-.action-card .icon { font-size: 2rem; margin-bottom: 0.75rem; }
-.action-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 0.3rem; }
-.action-card p { font-size: 0.78rem; color: var(--muted2); }
-.join-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 1.5rem; margin-top: 12px; }
-.sec-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; margin-bottom: 0.6rem; }
-.sec-hint { font-size: 0.82rem; color: var(--muted2); margin-bottom: 0.75rem; }
-.empty { text-align: center; color: var(--muted); padding: 1.5rem; font-size: 0.85rem; }
-.big-emoji { font-size: 3.5rem; text-align: center; margin-bottom: 1rem; }
-.nick-title { font-family: 'Gmarket Sans', sans-serif; font-size: 1.4rem; text-align: center; margin-bottom: 0.4rem; }
-.nick-sub { text-align: center; color: var(--muted2); font-size: 0.88rem; margin-bottom: 2rem; }
-.nick-wrap { max-width: 380px; margin: 0 auto; }
-.pending-result { text-align: center; padding: 3rem 1rem; }
-.pending-result .icon { font-size: 3rem; margin-bottom: 1rem; }
-.pending-result h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem; }
-.pending-result p { font-size: 0.88rem; color: var(--muted2); line-height: 1.7; }
 .prog-wrap { height: 5px; background: var(--surface2); border-radius: 3px; margin-top: 8px; }
-.prog-bar { height: 100%; border-radius: 3px; background: var(--accent3); transition: width 0.4s; }
+.prog-bar { height: 100%; background: var(--accent3); transition: width 0.4s; }
 .rt-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--accent3); margin-right: 6px; animation: pulse 2s infinite; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 </style>
@@ -140,66 +79,62 @@ input[type=text]::placeholder { color: var(--muted); }
 <div class="bg-orb orb2"></div>
 <div class="wrap">
 
-<!-- ══ NICKNAME ══ -->
 <div class="screen active" id="screen-nick">
   <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
-  <div class="nick-wrap">
-    <div class="big-emoji">👾</div>
-    <p class="nick-title">닉네임을 입력해주세요</p>
-    <p class="nick-sub">투표에서 사용할 이름이에요</p>
-    <input type="text" id="nick-input" placeholder="닉네임 입력..." maxlength="10" onkeydown="if(event.key==='Enter')confirmNick()" style="margin-bottom:10px;text-align:center;font-size:1.1rem" />
-    <button class="btn btn-primary btn-full big" onclick="confirmNick()">시작하기 →</button>
+  <div style="text-align:center; max-width:380px; margin:0 auto;">
+    <div style="font-size:3.5rem; margin-bottom:1rem;">👾</div>
+    <p style="font-family:'Gmarket Sans'; font-size:1.4rem; margin-bottom:0.4rem;">닉네임을 입력해주세요</p>
+    <p style="color:var(--muted2); font-size:0.88rem; margin-bottom:2rem;">투표에서 사용할 이름이에요</p>
+    <input type="text" id="nick-input" placeholder="닉네임 입력..." maxlength="10" onkeydown="if(event.key==='Enter')confirmNick()" style="margin-bottom:10px; text-align:center; font-size:1.1rem" />
+    <button class="btn btn-primary btn-full" style="padding:16px; font-size:1.05rem;" onclick="confirmNick()">시작하기 →</button>
   </div>
 </div>
 
-<!-- ══ HOME ══ -->
 <div class="screen" id="screen-home">
   <div class="logo"><h1>🎮 게임 투표</h1><p>친구들과 오늘 뭐 할지 정해요</p></div>
   <div id="home-my-nick"></div>
-  <div class="home-actions">
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
     <div class="action-card" onclick="createRoom()">
-      <div class="icon">🏠</div>
+      <div style="font-size:2rem; margin-bottom:0.75rem;">🏠</div>
       <h3>방 만들기</h3>
-      <p>새 투표방을 만들고 링크를 공유해요</p>
+      <p style="font-size:0.78rem; color:var(--muted2);">새 투표방을 만들어요</p>
     </div>
     <div class="action-card" onclick="showJoin()">
-      <div class="icon">🚪</div>
+      <div style="font-size:2rem; margin-bottom:0.75rem;">🚪</div>
       <h3>방 입장</h3>
-      <p>방 코드를 입력해서 입장해요</p>
+      <p style="font-size:0.78rem; color:var(--muted2);">코드로 입장해요</p>
     </div>
   </div>
-  <div class="join-card" id="join-card" style="display:none">
-    <p class="sec-label">방 코드 입력</p>
+  <div class="card" id="join-card" style="display:none; margin-top:12px;">
+    <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.6rem;">방 코드 입력</p>
     <div class="input-row">
-      <input type="text" id="join-code-input" placeholder="6자리 코드..." maxlength="6" style="text-transform:uppercase;letter-spacing:0.1em" onkeydown="if(event.key==='Enter')joinRoom()" />
+      <input type="text" id="join-code-input" placeholder="6자리 코드..." maxlength="6" style="text-transform:uppercase; letter-spacing:0.1em" onkeydown="if(event.key==='Enter')joinRoom()" />
       <button class="btn btn-accent2" onclick="joinRoom()">입장</button>
     </div>
   </div>
 </div>
 
-<!-- ══ ROOM ══ -->
 <div class="screen" id="screen-room">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem">
     <div id="room-my-nick-badge"></div>
-    <div style="display:flex;gap:6px;align-items:center">
+    <div style="display:flex; gap:6px; align-items:center">
       <div id="room-timer" class="timer-badge"></div>
-      <button class="btn btn-ghost" style="padding:6px 12px;font-size:0.78rem" onclick="leaveRoom()">나가기</button>
+      <button class="btn btn-ghost" style="padding:6px 12px; font-size:0.78rem" onclick="leaveRoom()">나가기</button>
     </div>
   </div>
 
   <div class="room-code-display">
     <div>
-      <div class="room-code-label">방 코드</div>
+      <div style="font-size:0.75rem; color:var(--muted);">방 코드</div>
       <div class="room-code-val" id="room-code-display"></div>
     </div>
-    <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+    <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
       <button class="copy-btn" id="copy-link-btn" onclick="copyLink()">🔗 링크 복사</button>
-      <button class="copy-btn" id="copy-code-btn" onclick="copyCode()" style="font-size:0.74rem">코드만 복사</button>
     </div>
   </div>
 
-  <div class="card" style="margin-bottom:12px">
-    <div class="card-title">참가자 <span id="member-count" style="color:var(--muted)"></span></div>
+  <div class="card">
+    <div class="card-title">참가자 <span id="member-count"></span></div>
     <div id="members-list"></div>
   </div>
 
@@ -211,12 +146,12 @@ input[type=text]::placeholder { color: var(--muted); }
 
   <div id="rtab-content-games">
     <div class="card">
-      <p class="sec-label">게임 후보 — 누구나 추가 가능</p>
+      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:0.6rem;">게임 후보 추가</p>
       <div class="input-row" style="margin-bottom:1rem">
-        <input type="text" id="game-input" placeholder="게임 이름 입력..." onkeydown="if(event.key==='Enter')addGame()" />
+        <input type="text" id="game-input" placeholder="게임 이름..." onkeydown="if(event.key==='Enter')addGame()" />
         <button class="btn btn-primary" onclick="addGame()">+ 추가</button>
       </div>
-      <div id="game-list"><div class="empty">아직 게임 후보가 없어요.</div></div>
+      <div id="game-list"></div>
     </div>
   </div>
 
@@ -225,10 +160,6 @@ input[type=text]::placeholder { color: var(--muted); }
   </div>
 
   <div id="rtab-content-result" style="display:none">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-      <p class="sec-label" style="margin:0">투표 결과</p>
-      <span style="font-size:0.78rem;color:var(--accent3);display:flex;align-items:center"><span class="rt-dot"></span>실시간</span>
-    </div>
     <div id="result-list"></div>
   </div>
 </div>
@@ -250,7 +181,7 @@ let roomCode = '';
 let roomData = {};
 let roomListener = null;
 let timerInterval = null;
-let tmpVote = {};
+let tmpVote = {}; // 현재 입력 중인 임시 투표 데이터
 
 const EXPIRE_MS = 12 * 60 * 60 * 1000;
 
@@ -287,7 +218,6 @@ function confirmNick() {
   if (pending) {
     localStorage.removeItem('gv_pending_room');
     document.getElementById('join-code-input').value = pending;
-    document.getElementById('join-card').style.display = 'block';
     joinRoom();
   }
 }
@@ -300,7 +230,6 @@ function renderHomeNick() {
 function changeNick() {
   localStorage.removeItem('gv_nick');
   myNick = '';
-  document.getElementById('nick-input').value = '';
   showScreen('nick');
 }
 
@@ -331,35 +260,31 @@ async function joinRoom() {
   if (code.length !== 6) { alert('6자리 코드를 입력해주세요!'); return; }
   const snap = await db.ref('rooms/' + code).get();
   if (!snap.exists()) { alert('존재하지 않는 방이에요.'); return; }
-  const data = snap.val();
-  if (Date.now() > data.expiresAt) { alert('만료된 방이에요. (12시간 후 자동 삭제)'); return; }
-  await db.ref(`rooms/${code}/members/${myNick}`).set({ joinedAt: Date.now() });
+  await db.ref(`rooms/${code}/members/${myNick}`).update({ joinedAt: Date.now() });
   enterRoom(code);
 }
 
 function enterRoom(code) {
   roomCode = code;
-  tmpVote = {};
   showScreen('room');
   const url = new URL(window.location.href);
   url.searchParams.set('room', code);
   window.history.replaceState({}, '', url);
   document.getElementById('room-code-display').textContent = code;
   document.getElementById('room-my-nick-badge').innerHTML = `<div class="my-nick">👤 ${myNick}</div>`;
-  if (roomListener) db.ref('rooms/' + roomCode).off('value', roomListener);
+  
+  if (roomListener) db.ref('rooms/' + roomCode).off();
   roomListener = db.ref('rooms/' + code).on('value', snap => {
     if (!snap.exists()) { alert('방이 삭제됐어요.'); leaveRoom(); return; }
     roomData = snap.val();
     renderRoom();
   });
   startTimer();
-  switchRoomTab('games');
 }
 
 function leaveRoom() {
-  if (roomListener) { db.ref('rooms/' + roomCode).off('value', roomListener); roomListener = null; }
+  if (roomListener) db.ref('rooms/' + roomCode).off();
   clearInterval(timerInterval);
-  roomCode = ''; roomData = {}; tmpVote = {};
   const url = new URL(window.location.href);
   url.searchParams.delete('room');
   window.history.replaceState({}, '', url);
@@ -371,12 +296,9 @@ function startTimer() {
   timerInterval = setInterval(() => {
     if (!roomData.expiresAt) return;
     const left = roomData.expiresAt - Date.now();
-    if (left <= 0) { document.getElementById('room-timer').textContent = '만료됨'; return; }
     const h = Math.floor(left / 3600000);
     const m = Math.floor((left % 3600000) / 60000);
-    const el = document.getElementById('room-timer');
-    el.textContent = `${h}시간 ${m}분 후 삭제`;
-    el.className = 'timer-badge' + (left < 3600000 ? ' soon' : '');
+    document.getElementById('room-timer').textContent = `${h}시간 ${m}분 후 삭제`;
   }, 10000);
 }
 
@@ -389,39 +311,29 @@ function copyLink() {
   });
 }
 
-function copyCode() {
-  navigator.clipboard.writeText(roomCode).then(() => {
-    const btn = document.getElementById('copy-code-btn');
-    btn.textContent = '✅ 복사됨!'; btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = '코드만 복사'; btn.classList.remove('copied'); }, 2000);
-  });
-}
-
 function renderRoom() {
   renderMembers();
   renderGameList();
-  const activeTab = document.querySelector('.tab.active')?.id?.replace('rtab-', '');
+  const activeTab = document.querySelector('.tab.active').id.split('-')[1];
   if (activeTab === 'vote') renderVoteTab();
   if (activeTab === 'result') renderResultTab();
 }
 
 function renderMembers() {
-  const members = roomData.members || {};
+  const members = Object.keys(roomData.members || {});
   const votes = roomData.votes || {};
-  const keys = Object.keys(members);
-  document.getElementById('member-count').textContent = `(${keys.length}명)`;
-  document.getElementById('members-list').innerHTML = keys.length ?
-    `<div class="members-wrap">${keys.map(n =>
-      `<div class="member-chip ${n===myNick?'me':''} ${votes[n]?'voted':''}">${n===myNick?'👤':'👥'} ${n}${votes[n]?' ✓':''}</div>`
-    ).join('')}</div>` : '<div class="empty">참가자 없음</div>';
+  document.getElementById('member-count').textContent = `(${members.length}명)`;
+  document.getElementById('members-list').innerHTML = `<div class="members-wrap">${members.map(n =>
+    `<div class="member-chip ${n===myNick?'me':''} ${votes[n]?'voted':''}">${n}${votes[n]?' ✓':''}</div>`
+  ).join('')}</div>`;
 }
 
 function renderGameList() {
   const games = roomData.games || [];
   const el = document.getElementById('game-list');
-  if (!games.length) { el.innerHTML = '<div class="empty">아직 게임 후보가 없어요.</div>'; return; }
+  if (!games.length) { el.innerHTML = '<div style="text-align:center; padding:1.5rem; color:var(--muted);">후보를 추가해주세요.</div>'; return; }
   el.innerHTML = games.map((g, i) =>
-    `<div class="game-item"><div class="game-dot"></div><span class="game-name-text">${g}</span><button class="btn btn-danger-soft" onclick="removeGame(${i})">✕</button></div>`
+    `<div class="game-item"><span>${g}</span><button class="btn btn-danger-soft" onclick="removeGame(${i})">✕</button></div>`
   ).join('');
 }
 
@@ -430,9 +342,10 @@ async function addGame() {
   const val = inp.value.trim();
   if (!val) return;
   const games = [...(roomData.games || [])];
-  if (games.includes(val)) { inp.value = ''; return; }
-  games.push(val);
-  await db.ref(`rooms/${roomCode}/games`).set(games);
+  if (!games.includes(val)) {
+    games.push(val);
+    await db.ref(`rooms/${roomCode}/games`).set(games);
+  }
   inp.value = '';
 }
 
@@ -451,120 +364,113 @@ function switchRoomTab(tab) {
   if (tab==='result') renderResultTab();
 }
 
+// 투표 탭 렌더링
 function renderVoteTab() {
   const el = document.getElementById('vote-content');
   const games = roomData.games || [];
-  const myVoteSaved = (roomData.votes || {})[myNick];
-  const members = Object.keys(roomData.members || {});
-  const votedCount = Object.keys(roomData.votes || {}).length;
+  const myVoteInDB = (roomData.votes || {})[myNick];
+  
+  if (!games.length) { el.innerHTML = '<div class="card">먼저 게임 후보를 추가해주세요.</div>'; return; }
 
-  if (!games.length) { el.innerHTML = '<div class="empty">게임 후보를 먼저 추가해주세요.</div>'; return; }
-
-  let html = `<p class="sec-hint" style="margin-bottom:1rem">각 게임에 1~5점을 매겨주세요. (1점 = 싫음, 5점 = 너무 좋음)</p>`;
-
-  const currentVote = myVoteSaved || tmpVote;
-
-  html += games.map(g => {
-    const s = currentVote[g] || 0;
-    const stars = [1,2,3,4,5].map(n => {
-      let cls = 'star';
-      if (n <= s) cls += n === 1 ? ' s1 sel' : ' sel';
-      const disabled = myVoteSaved ? 'style="pointer-events:none;opacity:0.7"' : '';
-      return `<div class="${cls}" onclick="rateStar('${g.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}',${n})" ${disabled}>${n}</div>`;
-    }).join('');
-    return `<div class="vote-game-card ${s>0?'rated':''}"><div class="vote-game-name">${g}</div><div class="stars" id="vst-${encodeURIComponent(g)}">${stars}</div></div>`;
-  }).join('');
-
-  if (!myVoteSaved) {
-    html += `<button class="btn btn-primary btn-full" onclick="submitVote()">제출하기 ✓</button>`;
-  } else {
-    html += `<div style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--accent3)">✅ 투표 완료! 다른 참가자를 기다리는 중...</div>`;
-    html += `<button class="btn btn-ghost btn-full" onclick="resetMyVote()" style="margin-top:8px">다시 투표하기</button>`;
+  // 수정 중이 아니라면 DB 데이터를 임시 데이터로 복제 (기존 투표 유지 로직)
+  if (!Object.keys(tmpVote).length && myVoteInDB) {
+    tmpVote = { ...myVoteInDB };
   }
 
-  html += `<div style="margin-top:1.25rem;font-size:0.82rem;color:var(--muted2);text-align:center">${votedCount}/${members.length}명 투표 완료</div>
-    <div class="prog-wrap"><div class="prog-bar" style="width:${members.length?(votedCount/members.length*100):0}%"></div></div>`;
+  let html = `<p style="color:var(--muted2); font-size:0.82rem; margin-bottom:1rem;">각 게임에 점수를 매겨주세요. (1점=싫음, 5점=좋음)</p>`;
 
+  html += games.map(g => {
+    const score = tmpVote[g] || 0;
+    const stars = [1,2,3,4,5].map(n => {
+      let cls = 'star';
+      if (n <= score) cls += (n === 1 ? ' s1 sel' : ' sel');
+      // 투표 완료 상태면 클릭 방지 (수정 버튼 누르기 전까지)
+      const pointer = myVoteInDB ? 'pointer-events:none; opacity:0.6;' : '';
+      return `<div class="${cls}" style="${pointer}" onclick="rateStar('${g.replace(/'/g,"\\'")}',${n})">${n}</div>`;
+    }).join('');
+    return `<div class="vote-game-card ${score>0?'rated':''}"><div class="vote-game-name">${g}</div><div class="stars">${stars}</div></div>`;
+  }).join('');
+
+  if (!myVoteInDB) {
+    html += `<button class="btn btn-primary btn-full" style="margin-top:1rem" onclick="submitVote()">투표 제출하기 ✓</button>`;
+  } else {
+    html += `<div style="text-align:center; margin-top:1.5rem;">
+               <p style="color:var(--accent3); font-size:0.9rem; margin-bottom:0.5rem;">✅ 투표가 완료되었습니다!</p>
+               <button class="btn btn-ghost btn-full" onclick="enableVoteEdit()">투표 수정하기</button>
+             </div>`;
+  }
   el.innerHTML = html;
 }
 
+// 별점 클릭 시 즉시 시각화
 function rateStar(game, score) {
-  if ((roomData.votes || {})[myNick]) return;
   tmpVote[game] = score;
-  const key = encodeURIComponent(game);
-  const stars = document.querySelectorAll(`#vst-${key} .star`);
-  stars.forEach((s, i) => {
-    s.className = 'star';
-    if (i+1 <= score) s.className += i === 0 ? ' s1 sel' : ' sel';
-  });
-  const card = document.querySelector(`#vst-${key}`)?.closest('.vote-game-card');
-  if (card) card.classList.toggle('rated', score > 0);
+  renderVoteTab(); // 즉시 다시 그려서 선택한 숫자가 보이게 함
 }
 
 async function submitVote() {
   const games = roomData.games || [];
-  const missing = games.filter(g => !tmpVote[g]);
-  if (missing.length) { alert(`점수를 아직 안 매긴 게임이 있어요:\n${missing.join(', ')}`); return; }
-  await db.ref(`rooms/${roomCode}/votes/${myNick}`).set({...tmpVote});
-  tmpVote = {};
+  if (games.some(g => !tmpVote[g])) {
+    alert('모든 게임에 점수를 매겨주세요!'); return;
+  }
+  await db.ref(`rooms/${roomCode}/votes/${myNick}`).set(tmpVote);
 }
 
-async function resetMyVote() {
+// 투표 수정 모드 진입
+async function enableVoteEdit() {
+  // DB에서 내 투표 상태를 잠깐 제거하여 UI를 투표 가능 상태로 변경
   await db.ref(`rooms/${roomCode}/votes/${myNick}`).remove();
-  tmpVote = {};
 }
 
-function checkAllVoted() {
-  const members = Object.keys(roomData.members || {});
-  const voted = Object.keys(roomData.votes || {});
-  return members.length > 0 && members.every(m => voted.includes(m));
-}
-
+// 결과 탭 렌더링
 function renderResultTab() {
   const el = document.getElementById('result-list');
-  const allVoted = checkAllVoted();
   const members = Object.keys(roomData.members || {});
   const votes = roomData.votes || {};
   const votedCount = Object.keys(votes).length;
 
-  if (!allVoted) {
-    el.innerHTML = `<div class="pending-result">
-      <div class="icon">🔒</div>
-      <h3>아직 모두가 투표하지 않았어요</h3>
-      <p>모든 참가자가 투표를 완료해야<br>결과를 볼 수 있어요</p>
-      <div style="margin-top:0.75rem;font-size:0.85rem;color:var(--muted2)">${votedCount}/${members.length}명 완료</div>
-      <div class="prog-wrap"><div class="prog-bar" style="width:${members.length?(votedCount/members.length*100):0}%"></div></div>
+  // 모두 투표 완료했는지 확인
+  if (votedCount < members.length || members.length === 0) {
+    el.innerHTML = `<div style="text-align:center; padding:3rem 1rem;">
+      <div style="font-size:3rem; margin-bottom:1rem;">🔒</div>
+      <h3>투표 진행 중...</h3>
+      <p style="color:var(--muted2); font-size:0.85rem; margin-top:0.5rem;">모든 참가자가 투표를 마쳐야 결과가 공개됩니다.</p>
+      <div class="prog-wrap"><div class="prog-bar" style="width:${(votedCount/members.length)*100}%"></div></div>
+      <p style="font-size:0.8rem; margin-top:0.5rem;">${votedCount} / ${members.length} 명 완료</p>
     </div>`;
     return;
   }
 
   const games = roomData.games || [];
-  if (!games.length) { el.innerHTML = '<div class="empty">게임 후보가 없어요.</div>'; return; }
+  const results = games.map(g => {
+    let sum = 0;
+    let details = [];
+    members.forEach(m => {
+      const s = votes[m] ? (votes[m][g] || 0) : 0;
+      sum += s;
+      details.push({name: m, score: s});
+    });
+    return { name: g, sum, details };
+  }).sort((a, b) => b.sum - a.sum);
 
-  const totals = games.map(g => {
-    const vscores = members.map(v => ({ voter: v, score: votes[v]?.(votes[v][g]||0) || (votes[v]?votes[v][g]||0:0) })).filter(v => v.score > 0);
-    const sum = vscores.reduce((a,b) => a+b.score, 0);
-    return { game: g, sum, vscores, hasOne: vscores.some(v=>v.score===1), allOne: vscores.length>0&&vscores.every(v=>v.score===1) };
-  }).sort((a,b) => b.sum-a.sum);
+  const maxScore = Math.max(...results.map(r => r.sum), 1);
 
-  const maxSum = Math.max(...totals.map(t=>t.sum), 1);
-  const topScore = totals[0]?.sum || 0;
-
-  el.innerHTML = totals.map(t => {
-    const isWin = t.sum===topScore && !t.allOne && t.sum>0;
-    const isElim = t.allOne;
-    const badge = isWin ? `<span class="badge badge-win">🏆 1위</span>` :
-      isElim ? `<span class="badge badge-elim">탈락</span>` :
-      t.hasOne ? `<span class="badge badge-warn">⚠️ 1점</span>` : '';
-    return `<div class="result-card ${isWin?'winner':''} ${isElim?'elim':''}">
+  el.innerHTML = `<div style="margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between;">
+    <p style="font-size:0.8rem; color:var(--muted);">최종 결과</p>
+    <span style="font-size:0.75rem; color:var(--accent3);"><span class="rt-dot"></span>실시간</span>
+  </div>` + 
+  results.map((r, i) => `
+    <div class="result-card ${i===0?'winner':''}">
       <div class="result-top">
-        <span class="result-gname">${t.game}</span>
-        <div style="display:flex;align-items:center;gap:8px">${badge}<span class="result-pts ${isWin?'winner':''} ${isElim?'elim':''}">${t.sum}점</span></div>
+        <span style="font-weight:700;">${r.name}</span>
+        <span class="result-pts" style="${i===0?'color:var(--accent)':''}">${r.sum}점</span>
       </div>
-      <div class="bar-track"><div class="bar-fill ${isElim?'elim':''}" style="width:${Math.round(t.sum/maxSum*100)}%"></div></div>
-      <div class="voter-scores">${t.vscores.map(vs=>`<span class="vs-chip">${vs.voter}: ${vs.score}점</span>`).join('')}</div>
-    </div>`;
-  }).join('');
+      <div class="bar-track"><div class="bar-fill" style="width:${(r.sum/maxScore)*100}%; ${i===0?'background:var(--accent)':''}"></div></div>
+      <div style="display:flex; flex-wrap:wrap; gap:4px;">
+        ${r.details.map(d => `<span class="vs-chip">${d.name}: ${d.score}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
 }
 </script>
 </body>
