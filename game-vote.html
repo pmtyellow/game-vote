@@ -223,26 +223,7 @@ body {
     <p>오늘 뭐 할지 같이 정해요</p>
   </div>
 
-  <!-- Firebase Config Banner -->
-  <div id="config-banner">
-    <h3>⚙️ Firebase 연결 필요 (1회만 설정)</h3>
-    <p>실시간 데이터 공유를 위해 Firebase 프로젝트 설정값을 입력해주세요.<br>아래 단계를 따라하면 <b>5분</b>이면 됩니다.</p>
-    <ol>
-      <li><b>console.firebase.google.com</b> 접속 → 프로젝트 만들기</li>
-      <li>프로젝트 이름 입력 → Google Analytics 건너뛰기 → 완료</li>
-      <li>왼쪽 메뉴 <b>빌드 → Realtime Database</b> → 데이터베이스 만들기</li>
-      <li>테스트 모드로 시작 → 완료</li>
-      <li>상단 URL 복사 (예: <code style="color:var(--accent2)">https://xxx-default-rtdb.firebaseio.com</code>)</li>
-      <li>왼쪽 상단 톱니바퀴 → 프로젝트 설정 → 아래 앱 추가(&lt;/&gt; 웹) → 설정값 복사</li>
-    </ol>
-    <div class="config-inputs">
-      <input type="text" id="cfg-apiKey" placeholder="apiKey: AIzaSy..." />
-      <input type="text" id="cfg-dbUrl" placeholder="databaseURL: https://xxx-default-rtdb.firebaseio.com" />
-      <input type="text" id="cfg-projectId" placeholder="projectId: my-game-vote" />
-    </div>
-    <button id="connect-btn" onclick="connectFirebase()">🔥 Firebase 연결하기</button>
-    <p class="conn-ok" id="conn-ok">✅ 연결 완료! 이제 링크를 공유하세요.</p>
-  </div>
+
 
   <!-- Tabs -->
   <div class="tabs">
@@ -326,27 +307,14 @@ function localLoad() {
 }
 
 // ── FIREBASE ──
-function connectFirebase() {
-  const apiKey = document.getElementById('cfg-apiKey').value.trim();
-  const dbUrl  = document.getElementById('cfg-dbUrl').value.trim();
-  const projectId = document.getElementById('cfg-projectId').value.trim();
-  if (!apiKey || !dbUrl || !projectId) { alert('세 항목 모두 입력해주세요.'); return; }
-
-  // Save config to localStorage for future visits
-  const cfg = { apiKey, databaseURL: dbUrl, projectId };
-  localStorage.setItem('gv_firebase_cfg', JSON.stringify(cfg));
-  initFirebase(cfg);
-}
-
 function initFirebase(cfg) {
   try {
     if (!firebase.apps.length) firebase.initializeApp(cfg);
     db = firebase.database();
-    document.getElementById('config-banner').style.display = 'none';
-    document.getElementById('conn-ok').style.display = 'block';
     subscribeFirebase();
   } catch(e) {
-    alert('Firebase 연결 실패: ' + e.message);
+    console.error('Firebase 연결 실패:', e.message);
+    localLoad();
   }
 }
 
@@ -370,19 +338,14 @@ function fbSet(path, val) {
 }
 
 // ── INIT ──
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBt_av2DXu9hP0kYGJFW9bsCAJ4qfKai9E",
+  databaseURL: "https://gameselecter-14467-default-rtdb.firebaseio.com",
+  projectId: "gameselecter-14467"
+};
+
 window.onload = () => {
-  const saved = localStorage.getItem('gv_firebase_cfg');
-  if (saved) {
-    try {
-      const cfg = JSON.parse(saved);
-      document.getElementById('cfg-apiKey').value = cfg.apiKey || '';
-      document.getElementById('cfg-dbUrl').value = cfg.databaseURL || '';
-      document.getElementById('cfg-projectId').value = cfg.projectId || '';
-      initFirebase(cfg);
-    } catch(e) { localLoad(); }
-  } else {
-    localLoad();
-  }
+  initFirebase(FIREBASE_CONFIG);
 };
 
 // ── TABS ──
